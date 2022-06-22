@@ -47,8 +47,8 @@ def patch(img_dir, out_dir, patch_size_x, patch_size_y, overlap):
 
 
 if __name__ == "__main__":
-    img_dir = "/home/yl/phd/bees/101_2105"
-    out_dir = "/home/yl/phd/bees/101_2105/patches"
+    img_dir = "/media/linn/7ABF-E20F/bees/220526/100_2605_1"
+    out_dir = os.path.join(img_dir, "patches")
     overlap = 100
     patch_size_x = int(4608/2 + overlap/2 -1)
     patch_size_y = int(3456/2 + overlap/2 -1)
