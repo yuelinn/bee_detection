@@ -167,16 +167,16 @@ def remove_overlaps(merged_fp):
             for anno in annos_yolo_l:
                 anno[0] = int(anno[0])
             
+            annos_yolo_l_str = [[str(e) for e in anno] for anno in annos_yolo_l]
 
-            anno_yolo_str = ' '.join(anno)
+            annos_yolo_str = '\n'.join([' '.join(anno) for anno in annos_yolo_l_str])
 
+            # pdb.set_trace()
 
-
-            # TODO overwrite & save to new file 
+            # overwrite & save to new file 
             annos_w = open(os.path.join(merged_fp, filename), 'w')
             annos_w.write(annos_yolo_str)
 
-            pdb.set_trace() 
 
 
 
@@ -199,7 +199,7 @@ if __name__ == "__main__":
     # os.mkdir(output_dir) # TODO: throw better error  # FIXME put this back 
     # os.mkdir(os.path.join(output_dir, "obj_train_data"))
 
-    # create_n_merge(label_parent_dir, merged_fp) # create labels files  # FIXME: put back after finished script
+    create_n_merge(label_parent_dir, merged_fp) # create labels files  # FIXME: put back after finished script
     remove_overlaps(merged_fp) # remove overlaps from label files
 
 
