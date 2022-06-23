@@ -3,16 +3,9 @@ import os
 import pdb
 import copy
 import numpy as np
-import pprint
-
-
-
 
 
 def create_n_merge(label_parent_dir, merged_fp):
-
-
-
     # list of patch dirs 
     patches_dir = os.listdir(label_parent_dir)
 
@@ -74,8 +67,9 @@ def create_n_merge(label_parent_dir, merged_fp):
 
 def remove_overlaps(merged_fp):
     for filename in os.listdir(merged_fp):
-        print(filename)
         annos = open(os.path.join(merged_fp, filename), 'r').readlines()
+        if len(annos) == 0:
+            continue
 
         # put annos into a numpy array with 5 cols:
         # [min_x min_y max_x max_y class_id]
@@ -100,25 +94,93 @@ def remove_overlaps(merged_fp):
         pivot = annos_sorted[:-1]
         next_box = annos_sorted[1:]
 
-        is_no_overlap = next_box[:,0] > pivot[:,2] # minx_new > maxx_pivot
+        is_no_overlap_x = next_box[:,0] > pivot[:,2] # minx_new > maxx_pivot
 
-        if not np.all(possible_overlap):
+        if np.all(is_no_overlap_x): # no overlap in x-coord
+            continue
+        else:
             # there may be some overlap based on the x-coordinates
-            pdb.set_trace()
+            for i, bb_pivot in enumerate(annos_sorted):
+                if np.any(np.isnan(bb_pivot)):
+                    continue
+
+                is_overlap_x = bb_pivot[2] >= annos_sorted[i+1:,0] # maxx_pivot >= minx_new 
+                is_overlap_y = bb_pivot[3] >= annos_sorted[i+1:,1] # maxy_pivot >= minx_new 
+
+                if np.any(is_overlap_x & is_overlap_y):
+                    remainding_bbs = annos_sorted[i+1:]
+                    ol_bbs=remainding_bbs[is_overlap_x & is_overlap_y]
+
+                    # replace pivot bb with larger bounding boxes 
+
+                    if not (np.all(ol_bbs[:,-1] == bb_pivot[-1])):
+                        # class should be the same to merge or else alert and skip
+                        print(f"In file {filename}: skipping merging {ol_bbs} and {bb_pivot} because the classes do not match")
+                        continue
+
+                    # replace current pivot with new bb 
+                    new_min_x = min(ol_bbs[:,0].min(), 
+                                    ol_bbs[:,2].min(), 
+                                    bb_pivot[0])
+                    new_max_x = max(ol_bbs[:,0].max(), 
+                                    ol_bbs[:,2].max(), 
+                                    bb_pivot[2])
+                    new_min_y = min(ol_bbs[:,1].min(), 
+                                    ol_bbs[:,3].min(), 
+                                    bb_pivot[1])
+                    new_max_y = max(ol_bbs[:,1].max(), 
+                                    ol_bbs[:,3].max(), 
+                                    bb_pivot[3])
+
+
+                    # remove overlapping bb since they have been processed
+                    annos_sorted[i+1:][is_overlap_x & is_overlap_y,0] = np.NAN
+                    annos_sorted[i+1:][is_overlap_x & is_overlap_y,1] = np.NAN
+                    annos_sorted[i+1:][is_overlap_x & is_overlap_y,2] = np.NAN
+                    annos_sorted[i+1:][is_overlap_x & is_overlap_y,3] = np.NAN
+                    annos_sorted[i+1:][is_overlap_x & is_overlap_y,4] = np.NAN
+
+
+            # remove nan rows
+            annos_sorted = annos_sorted[~np.isnan(annos_sorted).any(axis=1)]
+
+            # rescale to the YOLO format 
+            annos_yolo = np.zeros(annos_sorted.shape)
+            annos_yolo[:,0] = annos_sorted[:,-1]
+            annos_yolo[:,1] = (annos_sorted[:,0] +  annos_sorted[:,2])/2.  # c_x
+            annos_yolo[:,2] = (annos_sorted[:,1] +  annos_sorted[:,3])/2. # c_y
+            annos_yolo[:,3] = annos_sorted[:,2] - annos_sorted[:,0] # w
+            annos_yolo[:,4] = annos_sorted[:,3] - annos_sorted[:,1] # h
+
+            annos_yolo[:,1] = annos_yolo[:,1] /og_size_x
+            annos_yolo[:,3] = annos_yolo[:,3] /og_size_x
+
+            annos_yolo[:,2] = annos_yolo[:,2] /og_size_y
+            annos_yolo[:,4] = annos_yolo[:,4] /og_size_y
+
+
+            # change to list
+            annos_yolo_l = annos_yolo.tolist()
+
+
+            # change class_id to int 
+            for anno in annos_yolo_l:
+                anno[0] = int(anno[0])
+            
+
+            anno_yolo_str = ' '.join(anno)
+
+
+
+            # TODO overwrite & save to new file 
+            annos_w = open(os.path.join(merged_fp, filename), 'w')
+            annos_w.write(annos_yolo_str)
+
+            pdb.set_trace() 
 
 
 
 
-
-        
-
-
-
-
-
-
-            # cp OG image to merged dir
-            # cp metadata files to merged dir
 
 
 if __name__ == "__main__":
@@ -130,7 +192,8 @@ if __name__ == "__main__":
     og_size_x=4608
     og_size_y=3456
 
-    label_parent_dir = "/media/linn/7ABF-E20F/bees/labels/220521/labels"
+    label_parent_dir = "/home/yl/phd/bees/labels/220521"
+    # label_parent_dir = "/media/linn/7ABF-E20F/bees/labels/220521/labels"
     output_dir = os.path.join(label_parent_dir, "merged")
     merged_fp=os.path.join(output_dir, "obj_train_data")
     # os.mkdir(output_dir) # TODO: throw better error  # FIXME put this back 
@@ -138,4 +201,8 @@ if __name__ == "__main__":
 
     # create_n_merge(label_parent_dir, merged_fp) # create labels files  # FIXME: put back after finished script
     remove_overlaps(merged_fp) # remove overlaps from label files
+
+
+    # TODO cp OG image to merged dir
+    # TODO cp metadata files to merged dir
 
