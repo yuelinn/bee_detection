@@ -54,7 +54,7 @@ if __name__ == "__main__":
     full_txt=join(parent_dir, "full.txt")
     num_classes = 3
 
-    full_l = open(full_txt, 'r').readlines()
+    full_l = open(full_txt, 'r').read().splitlines() 
 
 
     # count = count_instance_dir(parent_dir, num_classes)
