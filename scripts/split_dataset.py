@@ -8,24 +8,33 @@ import pdb
 import shutil
 import os
 
+
+def print_stats(count, tag):
+    total = np.sum(count)
+    print(f"count_{tag}: {count}, total {tag}: {total}, percentages {tag}: {count/total*100.}")
+
 def count_instance(parent_file, num_classes):
     count=np.zeros(num_classes)
     # open file 
+    f = open(parent_file, 'r')
+    f_l = f.readlines()
+    c_l = [int(obj[0]) for obj in f_l]
+    np_c = np.unique(c_l, return_counts=True)
 
-    # make list of classes
-    # make it numpy 
-
-    # count classes in numpy
+    #  TODO FUCK
+    for i, c in enumerate(np_c[0]):
+        count[c]=np_c[1][i]
 
     return count
 
 
 
-def count_instance_dir(parent_dir, num_classes):
+def count_instance_dir(label_dir, num_classes):
     count=np.zeros(num_classes)
 
-    for file in parent_dir:
-        count = count + count_instance(file, num_classes)
+    for fn in os.listdir(label_dir):
+        # TODO check valid label file
+        count = count + count_instance(join(label_dir, fn), num_classes)
 
     return count 
 
@@ -91,3 +100,12 @@ if __name__ == "__main__":
     move_to_dir(train_dir, train_l, parent_dir)
     move_to_dir(test_dir, test_l, parent_dir)
     move_to_dir(val_dir, val_l, parent_dir)
+
+    # FIXME change dir to follow vars
+    count_val=count_instance_dir("/media/linn/7ABF-E20F/bees/labels/val/labels/", 3)
+    count_train=count_instance_dir("/media/linn/7ABF-E20F/bees/labels/train/labels/", 3)
+    count_test=count_instance_dir("/media/linn/7ABF-E20F/bees/labels/test/labels/", 3)
+
+    print_stats(count_train, "train")
+    print_stats(count_val, "val")
+    print_stats(count_test, "test")
