@@ -33,13 +33,20 @@ def write_l_to_file(fp, l):
     f.write(''.join(l))
 
 def move_to_dir(target_dir, source_l, parent_dir):
+    target_dir_img = join(target_dir, "images")
+    target_dir_img = join(target_dir, "labels")
+
     for file in source_l:
-        shutil.move(join(parent_dir, file), target_dir)
+        shutil.move(join(parent_dir, file), target_dir_img)
+        # TODO also move to labels
 
 
 if __name__ == "__main__":
-    # TODO need to change the train.txt from CVAT to full.txt 
-    parent_dir="/home/yl/phd/bees/labels"
+    # WARNING: before you use this script, you need to change the train.txt 
+    # from CVAT to a txt for each day, and concat all of the days into one large full.txt
+
+    # parent_dir="/home/yl/phd/bees/labels"
+    parent_dir="/media/linn/7ABF-E20F/bees/labels"
     test_split = 0.1
     val_split = 0.1
 
