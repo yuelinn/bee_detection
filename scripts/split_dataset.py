@@ -6,6 +6,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 import pdb
 import shutil
+import os
 
 def count_instance(parent_file, num_classes):
     count=np.zeros(num_classes)
@@ -34,12 +35,16 @@ def write_l_to_file(fp, l):
     f.write(''.join(l))
 
 def move_to_dir(target_dir, source_l, parent_dir):
-    target_dir_img = join(target_dir, "images")
-    target_dir_img = join(target_dir, "labels")
+    target_dir_imgs = join(target_dir, "images")
+    target_dir_labels = join(target_dir, "labels")
+    os.mkdir(target_dir)
+    os.mkdir(target_dir_imgs)
+    os.mkdir(target_dir_labels)
 
-    for file in source_l:
-        shutil.move(join(parent_dir, file), target_dir_img)
-        # TODO also move to labels
+    for fn in source_l:
+        shutil.copy2(join(parent_dir, fn), target_dir_imgs)
+        label_fn = fn.split('.')[0] + ".txt" # also move to labels
+        shutil.copy2(join(parent_dir, label_fn), target_dir_labels)
 
 
 if __name__ == "__main__":
