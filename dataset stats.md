@@ -2,8 +2,8 @@ dataset stats
 
 num of images: 
 	total: 2566
-	train: 2053
-	val: 256 
+	train: 2053, 358 empty, 1695 with images
+	val: 256, 45 empty
 	test: 257
 
 
@@ -22,3 +22,4 @@ total bbs:
   train: 80.71537033912604 %
   val: 9.7857263371014 %
   test: 9.498903323772566 %
+  average bb per img (incl empty imgs): 5927 / 2566 = 2.31 
