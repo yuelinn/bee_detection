@@ -1,5 +1,1 @@
-# bee_detection
-npw  031 course project
-
-TODO:
-conda req env
+See wiki for info about this repo.
