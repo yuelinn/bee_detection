@@ -1,0 +1,11 @@
+#!/bin/bash
+export N_SUBTASKS=1
+export SUBTASK_ID=1
+
+source ~/.bashrc;
+conda activate yolov5_bee;
+python --version
+cd /home/beestudents/Linn_Julian_phenotyping/yolov5;
+python train.py --data bee_eg.yaml --cfg yolov5m.yaml --weights '/home/beestudents/Linn_Julian_phenotyping/yolov5/pretrained/yolov5m.pt' --batch-size 8 --workers 1 --epochs 1000 --img 1280;
+
+
