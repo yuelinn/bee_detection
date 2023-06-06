@@ -17,6 +17,9 @@ def create_empty_labels(path_to_input_labels, path_to_input_images):
 
 
 if __name__ == '__main__':
+
+    """
+    # for the multiple days action cam
     parent_dir = "/media/linn/export10tb/bees/datasets/2022_action_cam/"
 
     for date_dir in os.listdir(parent_dir):
@@ -24,4 +27,11 @@ if __name__ == '__main__':
         imgs_dir = os.path.join(date_path, "images")
         labels_dir = os.path.join(date_path, "labels")
         create_empty_labels(labels_dir, imgs_dir)
+    """
+    
+    # for sabine's smartphone
+    parent_dir = "/media/linn/export10tb/bees/datasets/2021_smartphone"
+    imgs_dir = os.path.join(parent_dir, "images")
+    labels_dir = os.path.join(parent_dir, "labels")
+    create_empty_labels(labels_dir, imgs_dir)
  
