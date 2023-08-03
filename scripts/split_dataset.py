@@ -8,6 +8,8 @@ import pdb
 import shutil
 import os
 
+import argparse
+
 
 def print_stats(count, tag):
     total = np.sum(count)
@@ -59,17 +61,36 @@ def move_to_dir(target_dir, source_l, parent_dir):
 if __name__ == "__main__":
     # WARNING: before you use this script, you need to change the train.txt 
     # from CVAT to a txt for each day, and concat all of the days into one large full.txt
+    # UPDATE: we dont need this anymore, since we split the train-val-test by each day. just directly use the train.txt exported from CVAT.
 
-    # parent_dir="/home/yl/phd/bees/labels"
-    parent_dir="/media/linn/7ABF-E20F/bees/labels"
-    test_split = 0.1
-    val_split = 0.1
+    parser = argparse.ArgumentParser(
+            prog="split_dataset",
+            description="split dataset to train test val",
+            epilog=""
+            )
 
-    full_txt=join(parent_dir, "full.txt")
+    parser.add_argument("parent_dir")
+    parser.add_argument("--test_split", 
+            type=float,
+            default=0.15,
+            help="ratio of test split to the full dataset.")
+
+    parser.add_argument("--val_split", 
+            type=float,
+            default=0.15,
+            help="ratio of var split to the full dataset.")
+
+
+    args = parser.parse_args()
+
+    test_split = args.test_split
+    val_split = args.val_split
+    parent_dir = args.parent_dir
+
+    full_txt=join(parent_dir, "train.txt")
     num_classes = 3
 
     full_l = open(full_txt, 'r').read().splitlines() 
-
 
     # count = count_instance_dir(parent_dir, num_classes)
     # print(f"total count: {count}")
