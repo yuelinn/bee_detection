@@ -23,7 +23,6 @@ def count_instance(parent_file, num_classes):
     c_l = [int(obj[0]) for obj in f_l]
     np_c = np.unique(c_l, return_counts=True)
 
-    #  TODO FUCK
     for i, c in enumerate(np_c[0]):
         count[c]=np_c[1][i]
 
@@ -92,9 +91,6 @@ if __name__ == "__main__":
 
     full_l = open(full_txt, 'r').read().splitlines() 
 
-    # count = count_instance_dir(parent_dir, num_classes)
-    # print(f"total count: {count}")
-
     # split the data 
     train_l, test_l, _, _ = train_test_split(full_l, full_l, 
                                              test_size=test_split, 
@@ -118,14 +114,14 @@ if __name__ == "__main__":
     train_dir = join(parent_dir, "train")
     test_dir = join(parent_dir, "test")
     val_dir = join(parent_dir, "val")
+
     move_to_dir(train_dir, train_l, parent_dir)
     move_to_dir(test_dir, test_l, parent_dir)
     move_to_dir(val_dir, val_l, parent_dir)
 
-    # FIXME change dir to follow vars
-    count_val=count_instance_dir("/media/linn/7ABF-E20F/bees/labels/val/labels/", 3)
-    count_train=count_instance_dir("/media/linn/7ABF-E20F/bees/labels/train/labels/", 3)
-    count_test=count_instance_dir("/media/linn/7ABF-E20F/bees/labels/test/labels/", 3)
+    count_val=count_instance_dir(os.path.join(val_dir,"labels"), 3)
+    count_train=count_instance_dir(os.path.join(train_dir,"labels"), 3)
+    count_test=count_instance_dir(os.path.join(test_dir,"labels"), 3)
 
     print_stats(count_train, "train")
     print_stats(count_val, "val")
