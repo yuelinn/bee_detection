@@ -16,12 +16,11 @@ data dir should have the following structure
 
 
 import os
+import shutil
+import argparse
 
 import numpy as np 
 from sklearn.model_selection import train_test_split
-import shutil
-
-import argparse
 
 
 def print_stats(count, tag):
@@ -104,11 +103,11 @@ if __name__ == "__main__":
     # split the data 
     train_l, test_l, _, _ = train_test_split(full_l, full_l, 
                                              test_size=test_split, 
-                                             random_state=2378)
+                                             )
 
     train_l, val_l, _, _ = train_test_split(train_l, train_l, 
                                          test_size=int(val_split*len(full_l)), 
-                                         random_state=2378)
+                                         )
 
     print(f"train size: {len(train_l)}\nval size: {len(val_l)}\ntest size: {len(test_l)}")
 
