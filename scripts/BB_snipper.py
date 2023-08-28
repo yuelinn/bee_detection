@@ -52,7 +52,7 @@ def BB_snipper(label_root_path, export_dest_path):
                                     w * coord[m, 0] + w * coord[m, 2] / 2,
                                     h * coord[m, 1] + h * coord[m, 3] / 2
                                     ))
-                    if coord[m,4] < 2:
+                    if coord[m,4] < 2:      # Only bounding boxes of type honeybee (0) and bumblebee (1) are extracted, no unknowns (2)
                         wcoord = str(coord[m, 0])
                         hcoord = str(coord[m, 1])
                         im1.save(export_dest_path + "/"
