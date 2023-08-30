@@ -9,7 +9,7 @@ path = "data/tests_2023_pklnsort"
 
 weights_result_dict = {}
 
-array_name = ["honeybeeTP","bumblebeeTP","honeybeeFP","bumblebeeFP","honeybeeFN","honeybeeFN","TOTAL"]
+array_name = ["honeybeeTP","bumblebeeTP","honeybeeFP","bumblebeeFP","honeybeeFN","honeybeeFN","honeybeeTRUE","bumblebeeTRUE"]
 for name in array_name:
     df_list = os.listdir((path + "/" + os.listdir(path)[0]))
     df = pd.DataFrame(columns=df_list)
@@ -34,9 +34,13 @@ for name in array_name:
             if name == "bumblebeeFN":
                 new_row.append(int([array[3, 1]][0]))  # index for false negative bumblebees
 
-            if name == "TOTAL":
-                new_row.append(int(np.sum(array)))
-                print(int(np.sum(array)))
+            if name == "honeybeeTRUE":
+                HTRUE = int([array[0, 0]][0]) + int([array[3, 0]][0])
+                new_row.append(HTRUE)  # index for false negative honeybees
+            if name == "bumblebeeTRUE":
+                BTRUE = int([array[1, 1]][0]) + int([array[3, 1]][0])
+                new_row.append(BTRUE)  # index for false negative bumblebees
+
         print(name,":")
         print(df)
         df = df.append(pd.Series(new_row, index=df_list, name=i))
