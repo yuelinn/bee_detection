@@ -36,9 +36,11 @@ for name in array_name:
 
             if name == "honeybeeTRUE":
                 HTRUE = int([array[0, 0]][0]) + int([array[3, 0]][0])
+                HTRUE = np.sum(array,axis=0)[0]
                 new_row.append(HTRUE)  # index for false negative honeybees
             if name == "bumblebeeTRUE":
                 BTRUE = int([array[1, 1]][0]) + int([array[3, 1]][0])
+                BTRUE = np.sum(array,axis=0)[1]
                 new_row.append(BTRUE)  # index for false negative bumblebees
 
         print(name,":")
