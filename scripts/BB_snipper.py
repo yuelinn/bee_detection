@@ -1,5 +1,5 @@
 import os
-from PIL import Image
+from PIL import Image, ImageOps
 import numpy as np
 
 def BB_snipper(label_root_path, export_dest_path):
@@ -16,6 +16,8 @@ def BB_snipper(label_root_path, export_dest_path):
     The filename of the original image
     """
 
+    os.makedirs(export_dest_path, exist_ok=True)
+
     path_to_input_images = label_root_path+"/images/"
     path_to_label = label_root_path+"/labels/"
     filenames = os.listdir(path_to_input_images)
@@ -26,6 +28,7 @@ def BB_snipper(label_root_path, export_dest_path):
     for j,filename in enumerate(filenames):
         img = Image.open(path_to_input_images + filename)
         f = open(path_to_label + filename[:-4] + '.txt', "r")
+        img = ImageOps.exif_transpose(img)
         #exif_data = img._getexif()
 
         w,h = img.size
@@ -64,4 +67,7 @@ def BB_snipper(label_root_path, export_dest_path):
         print("Coordinates:", coord)
 
 
-BB_snipper("data","export")
+if __name__ == '__main__':
+    tag = "2022_action_cam_day1"
+    # tag = "2021_smartphone"
+    BB_snipper(f"/media/linn/export10tb/bees/dataset_final/datasets_by_days/{tag}/train/",f"/media/linn/export10tb/bees/dataset_final/datasets_by_days/{tag}/train/bee_snippets")
