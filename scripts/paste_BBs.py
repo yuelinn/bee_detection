@@ -13,7 +13,7 @@ if __name__ == '__main__':
     full_imgs_dir = "/media/linn/export10tb/bees/dataset_final/datasets_by_days/2022_action_cam_day1/train/images"
     output_img_dir = "/media/linn/export10tb/bees/dataset_final/datasets_by_days/2022_action_cam_day1/train/imgs_auged"
     output_labels_dir = "/media/linn/export10tb/bees/dataset_final/datasets_by_days/2022_action_cam_day1/train/labels_auged"
-    max_num_bees_per_img = 8
+    max_num_bees_per_img = 100
     min_num_bees_per_img = 1
     
     # get list of bee snippets
@@ -39,8 +39,8 @@ if __name__ == '__main__':
             bee_np = np.array(bee_pil)
 
             # randomly choose location of bee 
-            cx = random.uniform(0, 1)
-            cy = random.uniform(0, 1)
+            cx = random.uniform(0.015, 0.85)
+            cy = random.uniform(0.015, 0.85)
 
             cx_full = int(cx * w)
             cy_full = int(cy * h)
@@ -54,15 +54,20 @@ if __name__ == '__main__':
             bee_maxy =int( cy_full + bee_h/2)
 
             # paste bee into img (update img)
-            import pdb; pdb.set_trace()
-            full_img_np[bee_miny:bee_maxy, bee_minx:bee_maxx]=bee_np
+            try:
+                full_img_np[bee_miny:bee_maxy, bee_minx:bee_maxx]=bee_np
+            except:
+                import pdb; pdb.set_trace()
 
-
-            # TODO update label
-            # TODO get bee class
-
+            # get bee class
+            bee_cls  = bee_fn.split("_")[0]
+            
+            # update label
+            label_str = f"{bee_cls} {cx} {cy} {bee_w/w} {bee_h/h}"
             label_f.write(label_str)
 
+        img = Image.fromarray(full_img_np)
+        img.save(os.path.join(output_img_dir, img_fn))
         label_f.close()
 
 
