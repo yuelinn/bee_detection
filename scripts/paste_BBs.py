@@ -41,6 +41,7 @@ if __name__ == '__main__':
             # randomly choose location of bee 
             cx = random.uniform(0.015, 0.85)
             cy = random.uniform(0.015, 0.85)
+            # FIXME make sure its still within bounds
 
             cx_full = int(cx * w)
             cy_full = int(cy * h)
