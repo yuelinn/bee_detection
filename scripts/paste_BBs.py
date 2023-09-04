@@ -32,16 +32,20 @@ if __name__ == '__main__':
         full_img_np = np.array(full_img_pil)
         w, h = full_img_pil.size
 
+        print(num_bees)
         for bee in range(num_bees):
             # randomly choose a bee snippet 
             bee_fn = random.choice(bee_snippet_fns)
             bee_pil = Image.open(os.path.join(bee_snippet_dir,  bee_fn))
-            bee_np = np.array(bee_pil)
+            # TODO perform augmentations eg, rotations, etc.
+            bee_pil = bee_pil.rotate(random.uniform(0.0,360.0), expand=True)
 
+            import pdb; pdb.set_trace()
+
+            bee_np = np.array(bee_pil)
             # randomly choose location of bee 
-            cx = random.uniform(0.015, 0.85)
-            cy = random.uniform(0.015, 0.85)
-            # FIXME make sure its still within bounds
+            cx = random.uniform(0.15, 0.85) # FIXME makes sure its within bounds
+            cy = random.uniform(0.15, 0.85) # FIXME ditto
 
             cx_full = int(cx * w)
             cy_full = int(cy * h)
@@ -57,14 +61,16 @@ if __name__ == '__main__':
             # paste bee into img (update img)
             try:
                 full_img_np[bee_miny:bee_maxy, bee_minx:bee_maxx]=bee_np
+                # TODO make gaussian blur boundaries. hint: use Image.composite, Image.apply_transparency
             except:
                 import pdb; pdb.set_trace()
+                # FIXME make sure its still within bounds
 
             # get bee class
             bee_cls  = bee_fn.split("_")[0]
             
             # update label
-            label_str = f"{bee_cls} {cx} {cy} {bee_w/w} {bee_h/h}"
+            label_str = f"{bee_cls} {cx} {cy} {bee_w/w} {bee_h/h}\n"
             label_f.write(label_str)
 
         img = Image.fromarray(full_img_np)
