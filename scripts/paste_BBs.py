@@ -11,10 +11,11 @@ from scipy.stats import multivariate_normal
 import numpy as np
 
 if __name__ == '__main__':
-    bee_snippet_dir = "/media/linn/export10tb/bees/dataset_final/datasets_by_days/2022_action_cam_day1/train/bee_snippets"
-    full_imgs_dir = "/media/linn/export10tb/bees/dataset_final/datasets_by_days/2022_action_cam_day1/train/images"
-    output_img_dir = "/media/linn/export10tb/bees/dataset_final/datasets_by_days/2022_action_cam_day1/train/imgs_auged"
-    output_labels_dir = "/media/linn/export10tb/bees/dataset_final/datasets_by_days/2022_action_cam_day1/train/labels_auged"
+    tag = "2022_action_cam_day1"
+    bee_snippet_dir = f"/media/linn/export10tb/bees/dataset_final/datasets_by_days/smartphoneNday1_train_bee_snippets"
+    full_imgs_dir = f"/media/linn/export10tb/bees/dataset_final/datasets_by_days/{tag}/train/images"
+    output_img_dir = f"/media/linn/export10tb/bees/dataset_final/datasets_by_days/{tag}/train/imgs_auged"
+    output_labels_dir = f"/media/linn/export10tb/bees/dataset_final/datasets_by_days/{tag}/train/labels_auged"
     max_num_bees_per_img = 100
     min_num_bees_per_img = 1
     
@@ -53,7 +54,7 @@ if __name__ == '__main__':
             rv = multivariate_normal([0.0,0.0], [[0.3, 0.], [0.0, 0.3]])
             gauss = rv.pdf(pos)
             gauss_rotated = np.array(Image.fromarray(gauss).rotate(rot, expand=True, resample=Image.Resampling.BICUBIC)) # FIXME function-ize
-            gauss_rotated = gauss_rotated *2.
+            gauss_rotated = gauss_rotated *2. # TODO tuned by hand. maybe add it back to the cov mat
             gauss_rotated[gauss_rotated > 1.] = 1.0
             gauss_rotated = np.expand_dims(gauss_rotated, axis=-1)
 
