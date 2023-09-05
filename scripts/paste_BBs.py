@@ -5,6 +5,8 @@
 import os
 import random
 from PIL import Image 
+from scipy.stats import multivariate_normal
+
 
 import numpy as np
 
@@ -37,30 +39,43 @@ if __name__ == '__main__':
             # randomly choose a bee snippet 
             bee_fn = random.choice(bee_snippet_fns)
             bee_pil = Image.open(os.path.join(bee_snippet_dir,  bee_fn))
-            # TODO perform augmentations eg, rotations, etc.
-            bee_pil = bee_pil.rotate(random.uniform(0.0,360.0), expand=True)
-
-            import pdb; pdb.set_trace()
+            bee_w, bee_h= bee_pil.size
+            # perform augmentations for rotations
+            rot = random.uniform(0.0,360.0)
+            bee_pil = bee_pil.rotate(rot, expand=True, resample=Image.Resampling.BICUBIC)
+            # TODO increase augmentation methods, eg. filp, scale etc.
 
             bee_np = np.array(bee_pil)
+
+            # create the mask 
+            x, y = np.mgrid[-1:1:complex(0,bee_h), -1:1:complex(0,bee_w)] # FIXME take care of the odd number case
+            pos = np.dstack((x, y))
+            rv = multivariate_normal([0.0,0.0], [[0.3, 0.], [0.0, 0.3]])
+            gauss = rv.pdf(pos)
+            gauss_rotated = np.array(Image.fromarray(gauss).rotate(rot, expand=True, resample=Image.Resampling.BICUBIC)) # FIXME function-ize
+            gauss_rotated = gauss_rotated *2.
+            gauss_rotated[gauss_rotated > 1.] = 1.0
+            gauss_rotated = np.expand_dims(gauss_rotated, axis=-1)
+
+
             # randomly choose location of bee 
             cx = random.uniform(0.15, 0.85) # FIXME makes sure its within bounds
             cy = random.uniform(0.15, 0.85) # FIXME ditto
 
             cx_full = int(cx * w)
             cy_full = int(cy * h)
-
-            bee_w, bee_h= bee_pil.size
-
-            bee_minx =int(cx_full - bee_w/2)
-            bee_miny =int( cy_full - bee_h/2)
-
-            bee_maxx =int( cx_full + bee_w/2)
-            bee_maxy =int( cy_full + bee_h/2)
+            
+            bee_h_rot, bee_w_rot, _ = bee_np.shape
+            bee_minx =int(cx_full - bee_w_rot/2)
+            bee_miny =int( cy_full - bee_h_rot/2)
+            bee_maxx =int( cx_full + bee_w_rot/2)
+            bee_maxy =int( cy_full + bee_h_rot/2)
 
             # paste bee into img (update img)
             try:
-                full_img_np[bee_miny:bee_maxy, bee_minx:bee_maxx]=bee_np
+                blah = full_img_np[bee_miny:bee_maxy, bee_minx:bee_maxx]
+                blah = blah * (1- gauss_rotated) + bee_np* gauss_rotated
+                full_img_np[bee_miny:bee_maxy, bee_minx:bee_maxx] = blah
                 # TODO make gaussian blur boundaries. hint: use Image.composite, Image.apply_transparency
             except:
                 import pdb; pdb.set_trace()
@@ -70,7 +85,7 @@ if __name__ == '__main__':
             bee_cls  = bee_fn.split("_")[0]
             
             # update label
-            label_str = f"{bee_cls} {cx} {cy} {bee_w/w} {bee_h/h}\n"
+            label_str = f"{bee_cls} {cx} {cy} {bee_w_rot/w} {bee_h_rot/h}\n"
             label_f.write(label_str)
 
         img = Image.fromarray(full_img_np)
