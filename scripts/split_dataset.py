@@ -1,16 +1,23 @@
 #!/usr/bin/env python3
 """script to split data into train-val-test 
-data dir should have the following structure 
+data dir should have either one of the following structure 
 
 -- parent_dir
-  -- data
-    -- obj_train_data 
       -- AAA.jpg <RGB image>
       -- AAA.txt <exported from CVAT, in YOLO format>
       -- BBB.jpg 
       -- BBB.txt 
       ...
   -- train.txt <exported from CVAT, file containing all names of images>
+
+if train.txt does not exist, we will try to read from the dir <parent_dir>/images
+in that case, the struct of the dirs will be
+-- parent_dir 
+    -- images 
+        -- AAA.jpg
+        ...
+    -- labels
+        -- AAA.txt
 
 """
 
@@ -63,10 +70,17 @@ def move_to_dir(target_dir, source_l, parent_dir):
     os.mkdir(target_dir_imgs)
     os.mkdir(target_dir_labels)
 
+    if os.path.exists(os.path.join(parent_dir, source_l[0])):
+        img_dir = parent_dir
+        labels_dir = parent_dir
+    else:
+        img_dir = os.path.join(parent_dir, "images")
+        labels_dir = os.path.join(parent_dir, "labels")
+
     for fn in source_l:
-        shutil.copy2(os.path.join(parent_dir, fn), target_dir_imgs)
+        shutil.copy2(os.path.join(img_dir, fn), target_dir_imgs)
         label_fn = fn.split('.')[0] + ".txt" # also move to labels
-        shutil.copy2(os.path.join(parent_dir, label_fn), target_dir_labels)
+        shutil.copy2(os.path.join(labels_dir, label_fn), target_dir_labels)
 
 
 if __name__ == "__main__":
@@ -98,32 +112,45 @@ if __name__ == "__main__":
     full_txt=os.path.join(parent_dir, "train.txt")
     num_classes = 3
 
-    full_l = open(full_txt, 'r').read().splitlines() 
+    if not os.path.exists(full_txt):
+        print(f"train.txt is not found. instead reading list of images from {parent_dir}/images")
+        full_l = os.listdir(os.path.join(parent_dir, "images"))
+    else:
+        full_l = open(full_txt, 'r').read().splitlines() 
 
     # split the data 
-    train_l, test_l, _, _ = train_test_split(full_l, full_l, 
+    if test_split > 0:
+        train_l, test_l, _, _ = train_test_split(full_l, full_l, 
                                              test_size=test_split, 
                                              )
+    else:
+        train_l = full_l
 
     train_l, val_l, _, _ = train_test_split(train_l, train_l, 
                                          test_size=int(val_split*len(full_l)), 
                                          )
 
-    print(f"train size: {len(train_l)}\nval size: {len(val_l)}\ntest size: {len(test_l)}")
+    if test_split > 0:
+        print(f"train size: {len(train_l)}\nval size: {len(val_l)}\ntest size: {len(test_l)}")
+    else:
+        print(f"train size: {len(train_l)}\nval size: {len(val_l)}\n")
 
     # move files to separate dirs based on lists
     train_dir =os.path.join(parent_dir, "train")
-    test_dir = os.path.join(parent_dir, "test")
     val_dir = os.path.join(parent_dir, "val")
+    if test_split > 0:
+        test_dir = os.path.join(parent_dir, "test")
 
     move_to_dir(train_dir, train_l, parent_dir)
-    move_to_dir(test_dir, test_l, parent_dir)
     move_to_dir(val_dir, val_l, parent_dir)
+    if test_split > 0:
+        move_to_dir(test_dir, test_l, parent_dir)
 
-    count_val=count_instance_dir(os.path.join(val_dir,"labels"), 3)
     count_train=count_instance_dir(os.path.join(train_dir,"labels"), 3)
-    count_test=count_instance_dir(os.path.join(test_dir,"labels"), 3)
-
+    count_val=count_instance_dir(os.path.join(val_dir,"labels"), 3)
     print_stats(count_train, "train")
     print_stats(count_val, "val")
-    print_stats(count_test, "test")
+    if test_split > 0:
+        count_test=count_instance_dir(os.path.join(test_dir,"labels"), 3)
+        print_stats(count_test, "test")
+
