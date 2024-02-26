@@ -3,13 +3,14 @@
 import os
 from skimage import io
 import pdb 
+from tqdm import tqdm 
 
 
 def patch(img_dir, out_dir, patch_size_x, patch_size_y, overlap):
 
     imgs=os.listdir(img_dir)
     # print(imgs)
-    for img_name in imgs:
+    for img_name in tqdm(imgs):
         imgpath = os.path.join(img_dir, img_name)
         # dirpath = os.path.join(out_dir, img_name.split('.')[0])
         # os.mkdir(dirpath)
@@ -30,13 +31,13 @@ def patch(img_dir, out_dir, patch_size_x, patch_size_y, overlap):
                 top_row_y = 0 
 
                 while top_row_y + patch_size_y < ori_height:
-                    print(top_col_x, top_row_y)
+                    # print(top_col_x, top_row_y)
                     patch_name="_"+str(count)+"_"+str(top_row_y)+"_"+str(top_col_x)
 
-                    os.makedirs(os.path.join(out_dir, patch_name), exist_ok=True)
+                    # os.makedirs(os.path.join(out_dir, patch_name), exist_ok=True)
 
-                    # patch_name=img_name.split('.')[0]+"_"+str(count)+"_"+str(top_row_y)+"_"+str(top_col_x)+".jpg"
-                    io.imsave(os.path.join(out_dir, patch_name, img_name), 
+                    patch_name=img_name.split('.')[0]+"_"+str(count)+"_"+str(top_row_y)+"_"+str(top_col_x)+".jpg"
+                    io.imsave(os.path.join(out_dir, patch_name), 
                               img_np[top_row_y:top_row_y+patch_size_y, top_col_x:top_col_x+patch_size_x])
                     top_row_y = top_row_y + patch_size_y - overlap
                     count+=1
@@ -47,11 +48,14 @@ def patch(img_dir, out_dir, patch_size_x, patch_size_y, overlap):
 
 
 if __name__ == "__main__":
-    img_dir = "/media/linn/7ABF-E20F/bees/220526/100_2605_1"
-    out_dir = os.path.join(img_dir, "patches")
-    overlap = 100
-    patch_size_x = int(4608/2 + overlap/2 -1)
-    patch_size_y = int(3456/2 + overlap/2 -1)
+    img_dir = "/media/linn/export10tb/bees/dataset_old/cp_datasets/alles/images"
+    # out_dir = os.path.join(img_dir, "patches_inference")
+    out_dir = "/media/linn/export10tb/bees/dataset_old/cp_datasets/alles/patched_inference"
+    overlap = 1024 // 2 
+    # patch_size_x = int(4608/2 + overlap/2 -1)
+    # patch_size_y = int(3456/2 + overlap/2 -1)
+    patch_size_x = 1024
+    patch_size_y = 1024
 
     patch(img_dir, out_dir, patch_size_x, patch_size_y, overlap)
 
