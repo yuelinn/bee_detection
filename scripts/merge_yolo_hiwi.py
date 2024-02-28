@@ -144,11 +144,13 @@ def main(hiwi_labels_dir, round_x_labels_dir, out_dir, overlap_dir, imgs_dir, mi
     os.makedirs(out_dir, exist_ok=True)
     os.makedirs(overlap_dir, exist_ok=True)
 
+    """
     # copy over files from hiwis labels
     for label_fn in os.listdir(hiwi_labels_dir):
         ori_fp = os.path.join(hiwi_labels_dir, label_fn)
         new_fp = os.path.join(out_dir, label_fn)
         shutil.copy(ori_fp, new_fp)
+    """
 
     # for each round
     for round_i, round_labels_dir in enumerate(round_x_labels_dirs):
@@ -177,17 +179,10 @@ def main(hiwi_labels_dir, round_x_labels_dir, out_dir, overlap_dir, imgs_dir, mi
                 existing_labels_lines = labels2list(existing_labels_f)
                 existing_labels_objlist = [yolo_obj(x, img_fp) for x in existing_labels_lines]
 
-            with open(combined_labels_fp, "a+") as combined_labels_f:
-                if True:
+            with open(combined_labels_fp, "w") as combined_labels_f:
+                if True:  # TODO linting
                     with open(round_labels_fp, "r") as round_labels_f:
-                        # handling that fucking new line shit 
-                        combined_labels_f.seek(0)
-                        first_line = combined_labels_f.readline()
-                        # FIXME fuck this shit i should just read and parse and rewrite from beginning fuck.
-                        # if first_line:
-                        #    combined_labels_f.write("\n")
-                        #    pdb.set_trace()
-
+                        
                         round_labels_list = labels2list(round_labels_f)
                         
                         # check if its really a new object or if it was already found by the hiwi
@@ -207,6 +202,12 @@ def main(hiwi_labels_dir, round_x_labels_dir, out_dir, overlap_dir, imgs_dir, mi
 
                         # update classes of all objects 
                         [x.update_class(round_id_mapper) for x in round_labels_objlist]
+
+                        for old_obj in existing_labels_objlist:
+                            obj_line_str = old_obj.get_str()
+                            # write to new file 
+                            combined_labels_f.write(obj_line_str)
+
 
                         for round_obj in round_labels_objlist:
                             new_obj_line_str = round_obj.get_str()
