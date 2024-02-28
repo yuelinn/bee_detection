@@ -171,47 +171,46 @@ def main(hiwi_labels_dir, round_x_labels_dir, out_dir, imgs_dir, min_iou_overlap
                 print(f"Multiple files with same name but different extensions found:{img_glob} defaulting to first one")
             img_fn = img_glob[0]
 
-            img_fp = os.path.join(imgs_dir, img_fn)  # TODO this will not work for different extensions
+            img_fp = os.path.join(imgs_dir, img_fn)  
 
             with open(existing_labels_fp, "r") as existing_labels_f:
                 existing_labels_lines = labels2list(existing_labels_f)
                 existing_labels_objlist = [yolo_obj(x, img_fp) for x in existing_labels_lines]
 
             with open(combined_labels_fp, "w") as combined_labels_f:
-                if True:  # TODO linting
-                    with open(round_labels_fp, "r") as round_labels_f:
-                        
-                        round_labels_list = labels2list(round_labels_f)
-                        
-                        # check if its really a new object or if it was already found by the hiwi
-                        round_labels_objlist = [yolo_obj(x, img_fp) for x in round_labels_list]
-                        
-                        labels_class_ids = np.unique(np.array([x.class_id for x in existing_labels_objlist]))
-                        for class_id in labels_class_ids:
-                            labels_oneclass = [x for x in existing_labels_objlist if x.class_id == class_id]
-                            preds_oneclass = [x for x in round_labels_objlist if x.class_id == class_id]
+                with open(round_labels_fp, "r") as round_labels_f:
+                    
+                    round_labels_list = labels2list(round_labels_f)
+                    
+                    # check if its really a new object or if it was already found by the hiwi
+                    round_labels_objlist = [yolo_obj(x, img_fp) for x in round_labels_list]
+                    
+                    labels_class_ids = np.unique(np.array([x.class_id for x in existing_labels_objlist]))
+                    for class_id in labels_class_ids:
+                        labels_oneclass = [x for x in existing_labels_objlist if x.class_id == class_id]
+                        preds_oneclass = [x for x in round_labels_objlist if x.class_id == class_id]
 
-                            if not preds_oneclass:
-                                # no predictions for this round in the class of interest 
-                                # so just move on
-                                break
+                        if not preds_oneclass:
+                            # no predictions for this round in the class of interest 
+                            # so just move on
+                            break
 
-                            matches = find_matches(labels_oneclass, preds_oneclass, min_iou_overlap)  # also updates obj att for the matched preds
+                        matches = find_matches(labels_oneclass, preds_oneclass, min_iou_overlap)  # also updates obj att for the matched preds
 
-                        # update classes of all objects 
-                        [x.update_class(round_id_mapper) for x in round_labels_objlist]
+                    # update classes of all objects 
+                    [x.update_class(round_id_mapper) for x in round_labels_objlist]
 
-                        for old_obj in existing_labels_objlist:
-                            obj_line_str = old_obj.get_str()
-                            # write to new file 
-                            combined_labels_f.write(obj_line_str)
+                    for old_obj in existing_labels_objlist:
+                        obj_line_str = old_obj.get_str()
+                        # write to new file 
+                        combined_labels_f.write(obj_line_str)
 
 
-                        for round_obj in round_labels_objlist:
-                            new_obj_line_str = round_obj.get_str()
+                    for round_obj in round_labels_objlist:
+                        new_obj_line_str = round_obj.get_str()
 
-                            # write to new file 
-                            combined_labels_f.write(new_obj_line_str)
+                        # write to new file 
+                        combined_labels_f.write(new_obj_line_str)
 
 
 if __name__ == '__main__':
