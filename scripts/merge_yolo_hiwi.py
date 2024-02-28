@@ -140,9 +140,8 @@ class yolo_obj:
         string = f"{self.class_id} {self.center_px_x/self.img_w:.6f} {self.center_px_y/self.img_h:.6f} {self.bb_w/self.img_w:.6f} {self.bb_h/self.img_h:.6f}\n"
         return string
 
-def main(hiwi_labels_dir, round_x_labels_dir, out_dir, overlap_dir, imgs_dir, min_iou_overlap):
+def main(hiwi_labels_dir, round_x_labels_dir, out_dir, imgs_dir, min_iou_overlap):
     os.makedirs(out_dir, exist_ok=True)
-    os.makedirs(overlap_dir, exist_ok=True)
 
     """
     # copy over files from hiwis labels
@@ -160,7 +159,6 @@ def main(hiwi_labels_dir, round_x_labels_dir, out_dir, overlap_dir, imgs_dir, mi
         for labels_fn in tqdm(os.listdir(round_labels_dir)):
             round_labels_fp = os.path.join(round_labels_dir, labels_fn)
             combined_labels_fp = os.path.join(out_dir, labels_fn)
-            overlap_labels_fp = os.path.join(overlap_dir, labels_fn)
             existing_labels_fp = os.path.join(hiwi_labels_dir, labels_fn)  # TODO this should be changed depending on the rounds i guess
 
             # handling finding the correct extension using glob
@@ -220,9 +218,8 @@ if __name__ == '__main__':
     hiwi_labels_dir = "/media/linn/export10tb/bees/dataset_old/cp_datasets/alles/labels"
     round_x_labels_dirs = ["/mnt/mon13/bees/runs/detect/round1/labels"]
     out_dir = "/mnt/mon13/bees/hiwiNr1_unchecked/labels"
-    dir_for_overlapped_labels = "/mnt/mon13/bees/hiwiNr1_unchecked/overlapped"
     imgs_dir = "/media/linn/export10tb/bees/dataset_old/cp_datasets/alles/images"
     min_iou_overlap = 0.7
 
-    main(hiwi_labels_dir, round_x_labels_dirs, out_dir, dir_for_overlapped_labels, imgs_dir, min_iou_overlap)
+    main(hiwi_labels_dir, round_x_labels_dirs, out_dir, imgs_dir, min_iou_overlap)
 
