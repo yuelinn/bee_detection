@@ -25,6 +25,7 @@ in that case, the struct of the dirs will be
 import os
 import shutil
 import argparse
+import random
 
 import numpy as np 
 from sklearn.model_selection import train_test_split
@@ -84,6 +85,10 @@ def move_to_dir(target_dir, source_l, parent_dir):
 
 
 if __name__ == "__main__":
+
+    seed=2378
+    random.seed(seed)
+    np.random.seed(seed)
 
     parser = argparse.ArgumentParser(
             prog="split_dataset",
