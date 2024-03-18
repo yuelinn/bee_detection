@@ -29,7 +29,13 @@ def check_isin(x, x_min, x_max):
 @click.option(
     "--labels_dir",
     type=str,
-    help="path to the labels directory",
+    help="path to the labels directory. theses are labels for training",
+    required=True,
+)
+@click.option(
+    "--patching_labels_dir",
+    type=str,
+    help="path to the labels directory for where we should patch (it can be wrong/un-QC-ed)",
     required=True,
 )
 @click.option(
@@ -50,7 +56,7 @@ def check_isin(x, x_min, x_max):
     help="size of output image",
     required=True,
 )
-def crop_bbs(images_dir, labels_dir, output_dir, num_repeats, patch_size):
+def crop_bbs(images_dir, labels_dir, patching_labels_dir, output_dir, num_repeats, patch_size):
     """
     Function to draw bbs (from YOLO format txt labels) onto images
     Some parts were written by Julian Bauer
@@ -68,14 +74,15 @@ def crop_bbs(images_dir, labels_dir, output_dir, num_repeats, patch_size):
         except:
             print(f"Skipping {filename} because PIL cannot read file as image.")
 
-        f = open(os.path.join(labels_dir, Path(filename).stem + ".txt"), "r")
+        patching_f = open(os.path.join(patching_labels_dir, Path(filename).stem + ".txt"), "r")
+        # drawing_f = open(os.path.join(labels_dir, Path(filename).stem + ".txt"), "r")
         img = ImageOps.exif_transpose(
             img
         )  # for smartphone images to be oriented correctly
 
         w, h = img.size
         coord = np.zeros((5))
-        for i, line in enumerate(f):
+        for i, line in enumerate(patching_f):
             l = line.split(" ")
             coord[0] = l[1]
             coord[1] = l[2]
@@ -152,11 +159,20 @@ def crop_bbs(images_dir, labels_dir, output_dir, num_repeats, patch_size):
 
                             if is_in:
                                 # transform to new coords and normalise
-                                new_x = (int(round(x_c)) - new_x_min) / patch_size
-                                new_y = (int(round(y_c)) - new_y_min) / patch_size
-           
+                                new_x = (int(round(x_c)) - new_x_min) 
+                                new_y = (int(round(y_c)) - new_y_min)
+
+                                new_x /= patch_size
+                                new_y /= patch_size
+
+                                # handle OOB cases
+                                new_x = min(new_x, 1.0)
+                                new_y = min(new_y, 1.0)
+                                new_x = max(new_x, 0.0)
+                                new_y = max(new_y, 0.0)
+
                                 # save label txt 
-                                new_str = f"{l[0]} {new_x} {new_y} {float(l[3])*w/patch_size} {float(l[4])*h/patch_size}\n"
+                                new_str = f"{old_l[0]} {new_x} {new_y} {float(old_l[3])*w/patch_size} {float(old_l[4])*h/patch_size}\n"
                                 new_label_f.write(new_str)
 
 
