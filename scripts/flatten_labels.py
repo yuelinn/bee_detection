@@ -23,6 +23,21 @@ def convert_line(old_line):
     line_list[0] = str(get_cls_id(int(line_list[0])))
     return ' '.join(line_list)
 
+
+def class_valid(old_line):
+    """some classes should be ignored because they are like, duplicate of hiwi's original label
+    classes that should be skipped: 6,7,8 ; 12,13,14; 18,19,20 etc.
+    """
+    cls = int(old_line.split(' ')[0])
+    return not is_skip(cls)
+
+def is_skip(cls):
+    return (cls // 6 >= 1) and (cls % 6 < 3)
+
+def test_cls():
+    for cls in range(30):
+        print(cls, is_skip(cls))
+
 def convert_labels(qced_labels_dir, output_training_dir):
     for label_fn in os.listdir(qced_labels_dir):
         label_fp = os.path.join(qced_labels_dir, label_fn)
@@ -32,14 +47,20 @@ def convert_labels(qced_labels_dir, output_training_dir):
             with open(new_label_fp, "w") as new_label_f:
                 old_lines = label_f.readlines()
                 for old_line in old_lines:
-                    new_line = convert_line(old_line)
-                    new_label_f.write(new_line)
+                    if class_valid(old_line):
+                        new_line = convert_line(old_line)
+                        new_label_f.write(new_line)
 
-
-if __name__ == '__main__':
-    qced_labels_dir = "/media/linn/export10tb/bees/iterative_labelling/round1_ds/qced/round1-qced-smartphone/obj_train_data"
-    output_training_dir = "/media/linn/export10tb/bees/iterative_labelling/round1_ds/qced/round1-qced-smartphone/labels4training"
+def main():
+    qced_labels_dir = "/media/linn/export10tb/bees/iterative_labelling/round1_ds/qced/round1-qced-day5/labels"
+    output_training_dir = "/media/linn/export10tb/bees/iterative_labelling/round1_ds/qced/round1-qced-day5/labels4training"
 
     os.makedirs(output_training_dir, exist_ok=True)
 
     convert_labels(qced_labels_dir, output_training_dir)
+
+if __name__ == '__main__':
+    main()
+    # test_cls()
+
+
