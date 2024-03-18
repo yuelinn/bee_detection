@@ -12,7 +12,7 @@ def create_empty_labels(path_to_input_labels, path_to_input_images):
         according_label = n[:-3] + "txt"
         print(path_to_input_labels + "/" + according_label)
         if not os.path.exists(path_to_input_labels + "/" + according_label):
-            with open(path_to_input_labels + "/" + according_label, 'w') as f:
+            with open(path_to_input_labels + "/" + according_label, 'a') as f:
                 f.close()
 
 
@@ -29,8 +29,7 @@ if __name__ == '__main__':
         create_empty_labels(labels_dir, imgs_dir)
     """
     
-    # for sabine's smartphone
-    parent_dir = "/media/linn/export10tb/bees/datasets/2021_smartphone"
+    parent_dir = "/mnt/mon13/bees/runs/detect/round1"
     imgs_dir = os.path.join(parent_dir, "images")
     labels_dir = os.path.join(parent_dir, "labels")
     create_empty_labels(labels_dir, imgs_dir)
