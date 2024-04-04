@@ -140,9 +140,31 @@ class OneRound():
             bees.add(day.get_total_bees())
         return bees
 
+    def print_round(self):
+        bees = self.get_total_bees().bees_total
+        print(f"round{self.round_num}: honey: {bees.honeybees}, bumble: {bees.bumblebees} unknown: {bees.unknownbees} total:{bees.total_bees}")
+
+
 
 if __name__ == "__main__":
     round0 = OneRound(0, "/media/linn/export10tb/bees/dataset_old/cp_datasets/alles/labels")
+    round0.print_round()
 
-    import pdb; pdb.set_trace()
+    round0_half = OneRound(0.5, "/mnt/mon13/bees/runs/detect/round1/labels")
+    round0_half.print_round()
+
+    round1 = OneRound(1, "/media/linn/export10tb/bees/iterative_labelling/round1_ds/qced/alles_unflattened/labels")
+    round1.print_round()
+
+    round1_half = OneRound(1.5, "/mnt/mon13/bees/hiwiNr1Nr2_unchecked/labels/labels")
+    round1_half.print_round()
+
+    round2 = OneRound(2, "/media/linn/export10tb/bees/iterative_labelling/round2_ds/qced/alles_unflattened/labels")
+    round2.print_round()
+
+    round2_half = OneRound(2.5, "/mnt/mon13/bees/hiwiNr1Nr2r3_unchecked/labels")
+    round2_half.print_round()
+
+    round3 = OneRound(3, "/media/linn/export10tb/bees/iterative_labelling/round3_ds/qced/alles_unflattened/labels")
+    round3.print_round()
 
