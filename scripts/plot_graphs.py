@@ -142,29 +142,26 @@ class OneRound():
 
     def print_round(self):
         bees = self.get_total_bees().bees_total
-        print(f"round{self.round_num}: honey: {bees.honeybees}, bumble: {bees.bumblebees} unknown: {bees.unknownbees} total:{bees.total_bees}")
+        print(f"round{self.round_num}: \thoney: {bees.honeybees},\tbumble: {bees.bumblebees}\tunknown: {bees.unknownbees}\ttotal: {bees.total_bees}")
 
 
 
 if __name__ == "__main__":
-    round0 = OneRound(0, "/media/linn/export10tb/bees/dataset_old/cp_datasets/alles/labels")
-    round0.print_round()
 
-    round0_half = OneRound(0.5, "/mnt/mon13/bees/runs/detect/round1/labels")
-    round0_half.print_round()
+    rounds_dict = {}
 
-    round1 = OneRound(1, "/media/linn/export10tb/bees/iterative_labelling/round1_ds/qced/alles_unflattened/labels")
-    round1.print_round()
+    rounds_dict["0"] = OneRound(0, "/media/linn/export10tb/bees/dataset_old/cp_datasets/alles/labels")
+    rounds_dict["0.5"] = OneRound(0.5, "/mnt/mon13/bees/runs/detect/round1/labels")
+    rounds_dict["1"] = OneRound(1, "/media/linn/export10tb/bees/iterative_labelling/round1_ds/qced/alles_unflattened/labels")
+    rounds_dict["1.5"] = OneRound(1.5, "/mnt/mon13/bees/hiwiNr1Nr2_unchecked/labels/labels")
+    rounds_dict["2"] = OneRound(2, "/media/linn/export10tb/bees/iterative_labelling/round2_ds/qced/alles_unflattened/labels")
+    rounds_dict["2.5"] = OneRound(2.5, "/mnt/mon13/bees/hiwiNr1Nr2r3_unchecked/labels")
+    rounds_dict["3"] = OneRound(3, "/media/linn/export10tb/bees/iterative_labelling/round3_ds/qced/alles_unflattened/labels")
 
-    round1_half = OneRound(1.5, "/mnt/mon13/bees/hiwiNr1Nr2_unchecked/labels/labels")
-    round1_half.print_round()
+    # stats per round
+    for round_key in rounds_dict:
+        rounds_dict[round_key].print_round()
 
-    round2 = OneRound(2, "/media/linn/export10tb/bees/iterative_labelling/round2_ds/qced/alles_unflattened/labels")
-    round2.print_round()
+    # stats per plot
 
-    round2_half = OneRound(2.5, "/mnt/mon13/bees/hiwiNr1Nr2r3_unchecked/labels")
-    round2_half.print_round()
-
-    round3 = OneRound(3, "/media/linn/export10tb/bees/iterative_labelling/round3_ds/qced/alles_unflattened/labels")
-    round3.print_round()
 
