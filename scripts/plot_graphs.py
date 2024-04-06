@@ -294,7 +294,6 @@ if __name__ == "__main__":
     rounds_dict = {}
 
     rounds_dict["0"] = OneRound(0, "/media/linn/export10tb/bees/dataset_old/cp_datasets/alles/labels")
-    """
     rounds_dict["0.5"] = OneRound(0.5, "/mnt/mon13/bees/runs/detect/round1/labels")
     rounds_dict["1"] = OneRound(1, "/media/linn/export10tb/bees/iterative_labelling/round1_ds/qced/alles_unflattened/labels")
     rounds_dict["1.5"] = OneRound(1.5, "/mnt/mon13/bees/hiwiNr1Nr2_unchecked/labels/labels")
@@ -302,7 +301,6 @@ if __name__ == "__main__":
     rounds_dict["2.5"] = OneRound(2.5, "/mnt/mon13/bees/hiwiNr1Nr2r3_unchecked/labels")
     rounds_dict["3"] = OneRound(3, "/media/linn/export10tb/bees/iterative_labelling/round3_ds/qced/alles_unflattened/labels")
     rounds_dict["3.5"] = OneRound(3.5, "/mnt/mon13/bees/hiwiNr1-4_unchecked/labels")
-    """
 
     for round_key in rounds_dict:
         rounds_dict[round_key].print_round()     # stats per round
