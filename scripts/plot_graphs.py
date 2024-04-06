@@ -213,11 +213,57 @@ def stats_per_plot(round0):
     plt.savefig(f"plots_round{round0.round_num}.png")
 
 
+# TODO modularise
+def stats_per_day_cum(round0):
+    fig, ax = plt.subplots(layout='constrained', figsize=(12.,10.))
+    x = np.arange(len(round0.days_list))  # the label locations
+    bottom = np.zeros(len(round0.days_list))
+    width = 0.5  # the width of the bars
+    # multiplier = 0
+    font_size = 22
+
+    honey_bees_arr = np.zeros((len(round0.days_list),))  # 5 days and one smartphone
+    bumble_bees_arr = np.zeros((len(round0.days_list),))  # 5 days and one smartphone
+    unknown_bees_arr = np.zeros((len(round0.days_list),))  # 5 days and one smartphone
+
+    for i_day, day in enumerate(round0.days_list):
+        bees = day.get_total_bees().bees_total
+        honey_bees_arr[i_day] = bees.honeybees
+        bumble_bees_arr[i_day] = bees.bumblebees
+        unknown_bees_arr[i_day] = bees.unknownbees
+    
+    for heights, names in zip(
+            [honey_bees_arr, bumble_bees_arr, unknown_bees_arr],
+            ["honeybee", "bumblebee", "unknown bee"]
+            ):  # i know this is weird
+
+        # offset = width * multiplier
+        offset = 0
+        rects = ax.bar(x + offset, heights, width, label=names, bottom=bottom)
+        
+        # ax.bar_label(rects, padding=0, fontsize=font_size)
+        bottom += heights
+        # multiplier += 1
+
+    ax.bar_label(rects, padding=0, fontsize=font_size)
+
+    plt.rcParams.update({'font.size': font_size})
+    ax.tick_params(labelsize=font_size)
+    ax.set_ylabel('No. of bees', fontsize=font_size)
+    ax.set_title('Number of bees by days')
+    ax.set_xticks(x, [x.tag for x in round0.days_list], fontsize=font_size)
+    ax.legend(loc='upper right')
+    ax.set_ylim(0, 1000)
+
+    plt.savefig(f"cum_round{round0.round_num}.png")
+
+
 if __name__ == "__main__":
 
     rounds_dict = {}
 
     rounds_dict["0"] = OneRound(0, "/media/linn/export10tb/bees/dataset_old/cp_datasets/alles/labels")
+    """
     rounds_dict["0.5"] = OneRound(0.5, "/mnt/mon13/bees/runs/detect/round1/labels")
     rounds_dict["1"] = OneRound(1, "/media/linn/export10tb/bees/iterative_labelling/round1_ds/qced/alles_unflattened/labels")
     rounds_dict["1.5"] = OneRound(1.5, "/mnt/mon13/bees/hiwiNr1Nr2_unchecked/labels/labels")
@@ -225,11 +271,14 @@ if __name__ == "__main__":
     rounds_dict["2.5"] = OneRound(2.5, "/mnt/mon13/bees/hiwiNr1Nr2r3_unchecked/labels")
     rounds_dict["3"] = OneRound(3, "/media/linn/export10tb/bees/iterative_labelling/round3_ds/qced/alles_unflattened/labels")
     rounds_dict["3.5"] = OneRound(3.5, "/mnt/mon13/bees/hiwiNr1-4_unchecked/labels")
+    """
 
     for round_key in rounds_dict:
         rounds_dict[round_key].print_round()     # stats per round
         stats_per_day(rounds_dict[round_key])  # stats of days per round
         stats_per_plot(rounds_dict[round_key])  # stats of days per plot
+        stats_per_day_cum(rounds_dict[round_key])  # stats of days per round, stacked bar 
+
 
     
     # just 4 bars, each for the total (across all days) per cultivar
