@@ -3,10 +3,11 @@
 with classes, we should be able to plot all the graphs nicely
 """
 
-
 import os
 import glob
 from split_dataset import count_instance
+from matplotlib import pyplot as plt
+import numpy as np
 
 
 class Bees():
@@ -145,6 +146,72 @@ class OneRound():
         print(f"round{self.round_num}: \thoney: {bees.honeybees},\tbumble: {bees.bumblebees}\tunknown: {bees.unknownbees}\ttotal: {bees.total_bees}")
 
 
+def stats_per_day(round0):
+    fig, ax = plt.subplots(layout='constrained', figsize=(12.,10.))
+    x = np.arange(len(round0.days_list))  # the label locations
+    width = 0.25  # the width of the bars
+    multiplier = 0
+    font_size = 22
+
+    honey_bees_arr = np.zeros((len(round0.days_list),))  # 5 days and one smartphone
+    bumble_bees_arr = np.zeros((len(round0.days_list),))  # 5 days and one smartphone
+    unknown_bees_arr = np.zeros((len(round0.days_list),))  # 5 days and one smartphone
+
+    for i_day, day in enumerate(round0.days_list):
+        bees = day.get_total_bees().bees_total
+        honey_bees_arr[i_day] = bees.honeybees
+        bumble_bees_arr[i_day] = bees.bumblebees
+        unknown_bees_arr[i_day] = bees.unknownbees
+    
+    for heights, names in zip(
+            [honey_bees_arr, bumble_bees_arr, unknown_bees_arr],
+            ["honeybee", "bumblebee", "unknown bee"]
+            ):  # i know this is weird
+
+        offset = width * multiplier
+        rects = ax.bar(x + offset, heights, width, label=names)
+
+        ax.bar_label(rects, padding=3, fontsize=font_size)
+        multiplier += 1
+
+    plt.rcParams.update({'font.size': font_size})
+    ax.tick_params(labelsize=font_size)
+    ax.set_ylabel('No. of bees', fontsize=font_size)
+    ax.set_title('Number of bees by days')
+    ax.set_xticks(x + width, [x.tag for x in round0.days_list], fontsize=font_size)
+    ax.legend(loc='upper right')
+    ax.set_ylim(0, 1000)
+
+    plt.savefig(f"round{round0.round_num}.png")
+
+
+# stats per plot
+def stats_per_plot(round0):
+    fig, ax = plt.subplots(layout='constrained', figsize=(12.,10.))
+    x = np.arange(len(OneDay.plot_tags_list))  # FIXME the label locations
+    width = 0.15  # the width of the bars
+    multiplier = 0
+    font_size = 22
+
+    for day in round0.days_list:
+        if day.tag == "2021":  # TODO make this a tag of the instance instead
+            continue
+        heights = [plot.get_bees().bees_total.total_bees for plot in day.plots]
+        offset = width * multiplier
+        rects = ax.bar(x + offset, heights, width, label=day.tag)
+        ax.bar_label(rects, padding=3, fontsize=font_size) 
+        multiplier += 1
+
+    plt.rcParams.update({'font.size': font_size})
+    ax.tick_params(labelsize=font_size)
+    ax.set_ylabel('No. of bees', fontsize=font_size)
+    ax.set_title('Number of bees by cultivar')
+    ax.set_xticks(x + 2*width, OneDay.plot_tags_list, fontsize=font_size)
+    ax.legend(loc='upper right')
+    ax.set_ylim(0, 600)
+
+    plt.savefig(f"plots_round{round0.round_num}.png")
+
 
 if __name__ == "__main__":
 
@@ -157,11 +224,16 @@ if __name__ == "__main__":
     rounds_dict["2"] = OneRound(2, "/media/linn/export10tb/bees/iterative_labelling/round2_ds/qced/alles_unflattened/labels")
     rounds_dict["2.5"] = OneRound(2.5, "/mnt/mon13/bees/hiwiNr1Nr2r3_unchecked/labels")
     rounds_dict["3"] = OneRound(3, "/media/linn/export10tb/bees/iterative_labelling/round3_ds/qced/alles_unflattened/labels")
+    rounds_dict["3.5"] = OneRound(3.5, "/mnt/mon13/bees/hiwiNr1-4_unchecked/labels")
 
-    # stats per round
     for round_key in rounds_dict:
-        rounds_dict[round_key].print_round()
+        rounds_dict[round_key].print_round()     # stats per round
+        stats_per_day(rounds_dict[round_key])  # stats of days per round
+        stats_per_plot(rounds_dict[round_key])  # stats of days per plot
 
-    # stats per plot
+    
+    # just 4 bars, each for the total (across all days) per cultivar
+
+
 
 
