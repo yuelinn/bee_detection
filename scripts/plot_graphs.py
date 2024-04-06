@@ -258,6 +258,37 @@ def stats_per_day_cum(round0):
     plt.savefig(f"cum_round{round0.round_num}.png")
 
 
+# stats per plot, but stacked to show cummulative 
+def stats_per_plot_cum(round0):
+    fig, ax = plt.subplots(layout='constrained', figsize=(12.,10.))
+    x = np.arange(len(OneDay.plot_tags_list))  # FIXME the label locations
+    width = 0.5  # the width of the bars
+    # multiplier = 0
+    font_size = 22
+    bottom = np.zeros(len(OneDay.plot_tags_list))
+
+    for day in round0.days_list:
+        if day.tag == "2021":  # TODO make this a tag of the instance instead
+            continue
+        heights = [plot.get_bees().bees_total.total_bees for plot in day.plots]
+        # offset = width * multiplier
+        offset = 0
+        rects = ax.bar(x + offset, heights, width, label=day.tag, bottom=bottom)
+        # multiplier += 1
+        bottom += heights
+    ax.bar_label(rects, padding=0, fontsize=font_size) 
+
+    plt.rcParams.update({'font.size': font_size})
+    ax.tick_params(labelsize=font_size)
+    ax.set_ylabel('No. of bees', fontsize=font_size)
+    ax.set_title('Number of bees by cultivar')
+    ax.set_xticks(x , OneDay.plot_tags_list, fontsize=font_size)
+    ax.legend(loc='upper right')
+    ax.set_ylim(0, 600)
+
+    plt.savefig(f"cum_plots_round{round0.round_num}.png")
+
+
 if __name__ == "__main__":
 
     rounds_dict = {}
@@ -278,6 +309,7 @@ if __name__ == "__main__":
         stats_per_day(rounds_dict[round_key])  # stats of days per round
         stats_per_plot(rounds_dict[round_key])  # stats of days per plot
         stats_per_day_cum(rounds_dict[round_key])  # stats of days per round, stacked bar 
+        stats_per_plot_cum(rounds_dict[round_key])  # stats of days per plot, stacked bar
 
 
     
