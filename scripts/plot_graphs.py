@@ -70,7 +70,7 @@ class Bees_unflattened():
 
 
 class OnePlot():
-    def __init__(self, fp_list, plot_tag):
+    def __init__(self, fp_list, plot_tag, plot_area=1.0):
         self.parent_fp_list = fp_list
         self.plot_tag = plot_tag
 
@@ -79,6 +79,8 @@ class OnePlot():
 
         self.__bees = Bees_unflattened()
         self.set_bees()
+
+        self.plot_area = plot_area
 
     def set_paths(self):
         # TODO im sure i can make this prettier but not rn
@@ -99,17 +101,23 @@ class OnePlot():
             return self.__bees
 
     def get_average_bees(self):
-        return self.__bees.ave(max(1,len(self.fp_list)))
+        if len(self.fp_list) <= 0:
+            ave_bees = self.__bees
+        else:
+            ave_bees = self.__bees.ave(len(self.fp_list) * self.plot_area)
+        return ave_bees
 
 
 class OneDay():
-    plot_tags_list = ["PM", "PH", "WM", "WF"]
-    def __init__(self, day_tag, labels_dir, is_no_plots=False):
+    plot_tags_list = ["PM", "WF", "PH", "WM"]
+    # plot_tags_list = ["PM", "PH", "WM", "WF"]
+    def __init__(self, day_tag, labels_dir, is_no_plots=False, plots_areas=None):
         self.tag = day_tag
         self.bees = Bees_unflattened()
 
         self.paths = None
         self.set_paths(labels_dir)
+        self.plots_areas = plots_areas
 
         self.plots = []
         if is_no_plots:
@@ -123,8 +131,8 @@ class OneDay():
         self.paths = glob.glob(os.path.join(labels_dir, self.tag+"*"))
 
     def set_plots(self):
-        for plot_tag in OneDay.plot_tags_list:
-            self.plots.append(OnePlot(self.paths, plot_tag))
+        for plot_tag, plot_area in zip(OneDay.plot_tags_list, self.plots_areas):
+            self.plots.append(OnePlot(self.paths, plot_tag, plot_area))
 
     def set_total_bees(self):
         for plot in self.plots:
@@ -135,14 +143,13 @@ class OneDay():
 
 
 class OneRound():
-    day_tags_list = [
-            "220710",
-            "220717",
-            "220719",
-            "220720",
-            "220721",
-            "2021"
-            ]
+    day_tags_dict = {}
+    day_tags_dict["220710"] = [0.68, 0.70, 0.85, 0.83]  # PM75  & F  & P  & FM
+    day_tags_dict["220717"] = [0.50, 0.91, 0.72, 0.68] 
+    day_tags_dict["220719"] = [0.75, 0.66, 0.63, 0.70]
+    day_tags_dict["220720"] = [0.91, 0.89, 0.93, 0.77]
+    day_tags_dict["220721"] = [0.91, 1.12, 0.95, 0.79]
+    day_tags_dict["2021"] = None
 
     def __init__(self, round_num, labels_dir):
         self.round_num = round_num
@@ -152,12 +159,12 @@ class OneRound():
         self.populate_days()
 
     def populate_days(self):
-        for day_tag in OneRound.day_tags_list:
+        for day_tag in OneRound.day_tags_dict:
             if day_tag == "2021":
                 # handle smartphone as a single plot 
                 self.days_list.append(OneDay(day_tag, self.labels_dir, is_no_plots=True))
             else:
-                self.days_list.append(OneDay(day_tag, self.labels_dir))
+                self.days_list.append(OneDay(day_tag, self.labels_dir, plots_areas=OneRound.day_tags_dict[day_tag]))
 
     def get_total_bees(self):
         bees = Bees_unflattened()
@@ -195,7 +202,7 @@ def stats_per_day(round0):
         offset = width * multiplier
         rects = ax.bar(x + offset, heights, width, label=names)
 
-        ax.bar_label(rects, padding=3, fontsize=font_size, fmt="%.2f")
+        ax.bar_label(rects, padding=3, fontsize=12, fmt="%.2f")
         multiplier += 1
 
     plt.rcParams.update({'font.size': font_size})
@@ -204,7 +211,11 @@ def stats_per_day(round0):
     ax.set_title('Number of bees by days')
     ax.set_xticks(x + width, [x.tag for x in round0.days_list], fontsize=font_size)
     ax.legend(loc='upper right')
-    ax.set_ylim(0, 1000)
+    if IS_AVE:
+        ax.set_ylim(0, AVE_Y_MAX)
+    else:
+        ax.set_ylim(0, 1000)
+
 
     plt.savefig(f"round{round0.round_num}.png")
     plt.close()
@@ -224,7 +235,7 @@ def stats_per_plot(round0):
         heights = [plot.get_bees().bees_total.total_bees for plot in day.plots]
         offset = width * multiplier
         rects = ax.bar(x + offset, heights, width, label=day.tag)
-        ax.bar_label(rects, padding=3, fontsize=font_size, fmt="%.2f") 
+        ax.bar_label(rects, padding=3, fontsize=12, fmt="%.2f") 
         multiplier += 1
 
     plt.rcParams.update({'font.size': font_size})
@@ -233,7 +244,11 @@ def stats_per_plot(round0):
     ax.set_title('Number of bees by cultivar')
     ax.set_xticks(x + 2*width, OneDay.plot_tags_list, fontsize=font_size)
     ax.legend(loc='upper right')
-    ax.set_ylim(0, 600)
+    if IS_AVE:
+        ax.set_ylim(0, 6)
+    else:
+        ax.set_ylim(0, 600)
+
 
     plt.savefig(f"plots_round{round0.round_num}.png")
     plt.close()
@@ -280,7 +295,7 @@ def stats_per_day_cum(round0):
     ax.set_xticks(x, [x.tag for x in round0.days_list], fontsize=font_size)
     ax.legend(loc='upper right')
     if IS_AVE:
-        ax.set_ylim(0, 10)
+        ax.set_ylim(0, AVE_Y_MAX)
     else:
         ax.set_ylim(0, 1000)
 
@@ -315,7 +330,7 @@ def stats_per_plot_cum(round0):
     ax.set_xticks(x , OneDay.plot_tags_list, fontsize=font_size)
     ax.legend(loc='upper right')
     if IS_AVE:
-        ax.set_ylim(0, 10)
+        ax.set_ylim(0, AVE_Y_MAX)
     else:
         ax.set_ylim(0, 1000)
 
@@ -358,7 +373,7 @@ def stats_per_day_by_plots(round0):
     ax.set_xticks(x + 1.5*width, day_list, fontsize=font_size)
     ax.legend(loc='upper right')
     if IS_AVE:
-        ax.set_ylim(0, 10)
+        ax.set_ylim(0, AVE_Y_MAX)
     else:
         ax.set_ylim(0, 1000)
 
@@ -405,7 +420,7 @@ def stats_per_day_by_plots_cum(round0):
     ax.set_xticks(x , day_list, fontsize=font_size)
     ax.legend(loc='upper right')
     if IS_AVE:
-        ax.set_ylim(0, 10)
+        ax.set_ylim(0, AVE_Y_MAX)
     else:
         ax.set_ylim(0, 1000)
 
@@ -478,6 +493,10 @@ if __name__ == "__main__":
 
     IS_AVE = True  # i know this sucks but okay
     # IS_AVE = False
+
+    AVE_Y_MAX = 12
+
+    files_blacklist_fp = "blacklist_img_fn.txt"
 
     rounds_dict = {}
 
