@@ -7,6 +7,7 @@ import os
 import glob
 from split_dataset import count_instance
 from matplotlib import pyplot as plt
+from matplotlib.ticker import FormatStrFormatter
 import numpy as np
 import copy
 
@@ -194,7 +195,7 @@ def stats_per_day(round0):
         offset = width * multiplier
         rects = ax.bar(x + offset, heights, width, label=names)
 
-        ax.bar_label(rects, padding=3, fontsize=font_size)
+        ax.bar_label(rects, padding=3, fontsize=font_size, fmt="%.2f")
         multiplier += 1
 
     plt.rcParams.update({'font.size': font_size})
@@ -223,7 +224,7 @@ def stats_per_plot(round0):
         heights = [plot.get_bees().bees_total.total_bees for plot in day.plots]
         offset = width * multiplier
         rects = ax.bar(x + offset, heights, width, label=day.tag)
-        ax.bar_label(rects, padding=3, fontsize=font_size) 
+        ax.bar_label(rects, padding=3, fontsize=font_size, fmt="%.2f") 
         multiplier += 1
 
     plt.rcParams.update({'font.size': font_size})
@@ -270,7 +271,7 @@ def stats_per_day_cum(round0):
         bottom += heights
         # multiplier += 1
 
-    ax.bar_label(rects, padding=0, fontsize=font_size)
+    ax.bar_label(rects, padding=0, fontsize=font_size, fmt="%.2f")
 
     plt.rcParams.update({'font.size': font_size})
     ax.tick_params(labelsize=font_size)
@@ -305,7 +306,7 @@ def stats_per_plot_cum(round0):
         rects = ax.bar(x + offset, heights, width, label=day.tag, bottom=bottom)
         # multiplier += 1
         bottom += heights
-    ax.bar_label(rects, padding=0, fontsize=font_size) 
+    ax.bar_label(rects, padding=0, fontsize=font_size, fmt="%.2f") 
 
     plt.rcParams.update({'font.size': font_size})
     ax.tick_params(labelsize=font_size)
@@ -347,7 +348,7 @@ def stats_per_day_by_plots(round0):
         heights = [bees.bees_total.total_bees for bees in plots_dict[plot_tag]]
         offset = width * multiplier
         rects = ax.bar(x + offset, heights, width, label=plot_tag)
-        ax.bar_label(rects, padding=3, fontsize=font_size) 
+        ax.bar_label(rects, padding=3, fontsize=12, fmt="%.2f") 
         multiplier += 1
 
     plt.rcParams.update({'font.size': font_size})
@@ -395,7 +396,7 @@ def stats_per_day_by_plots_cum(round0):
         rects = ax.bar(x + offset, heights, width, label=plot_tag, bottom=bottom)
         # multiplier += 1
         bottom += heights
-    ax.bar_label(rects, padding=3, fontsize=font_size) 
+    ax.bar_label(rects, padding=3, fontsize=font_size, fmt="%.2f") 
 
     plt.rcParams.update({'font.size': font_size})
     ax.tick_params(labelsize=font_size)
@@ -430,6 +431,7 @@ def stats_per_day_by_plots_class(round0):
 
     fig, ax = plt.subplots(layout='constrained', figsize=(12.,10.))
     x = np.arange(len(plots_dict[OneDay.plot_tags_list[0]]))  # FIXME the label locations
+    ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
     width = 0.2  # the width of the bars
     multiplier = 0
     font_size = 22
@@ -449,10 +451,10 @@ def stats_per_day_by_plots_class(round0):
         heights = [bees.bees_total.unknownbees for bees in plots_dict[plot_tag]]
         rects = ax.bar(x + offset, heights, width, label=f"{plot_tag}_unknown bee", bottom=bottom, color="tab:orange")
 
-        ax.bar_label(rects, padding=20, fontsize=font_size) 
+        ax.bar_label(rects, padding=20, fontsize=12, fmt="%.2f") 
         bottom += heights
         for xnew, h, in zip(x+offset,bottom):
-            plt.text(xnew, h, plot_tag, ha="center",fontsize=18)
+            plt.text(xnew, h, plot_tag, ha="center",fontsize=16)
 
         multiplier += 1
 
