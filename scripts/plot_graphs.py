@@ -8,6 +8,7 @@ import glob
 from split_dataset import count_instance
 from matplotlib import pyplot as plt
 import numpy as np
+import copy
 
 
 class Bees():
@@ -26,6 +27,14 @@ class Bees():
         self.bumblebees += bb
         self.unknownbees += ub
         self.total_bees += hb + bb + ub
+
+    def ave(self, denum):
+        bees_averaged = copy.deepcopy(self)
+        bees_averaged.honeybees /= denum
+        bees_averaged.bumblebees /= denum
+        bees_averaged.unknownbees /= denum
+        bees_averaged.total_bees /= denum 
+        return bees_averaged
 
 
 class Bees_unflattened():
@@ -50,6 +59,14 @@ class Bees_unflattened():
         self.bees_overlaped.add(bees2.bees_overlaped)
         self.bees_total.add(bees2.bees_total)
 
+    def ave(self, denum):
+        bees_averaged = Bees_unflattened()
+        bees_averaged.bees_new = self.bees_new.ave(denum)
+        bees_averaged.bees_old = self.bees_old.ave(denum)
+        bees_averaged.bees_overlaped = self.bees_overlaped.ave(denum)
+        bees_averaged.bees_total = self.bees_total.ave(denum)
+        return bees_averaged
+
 
 class OnePlot():
     def __init__(self, fp_list, plot_tag):
@@ -59,7 +76,7 @@ class OnePlot():
         self.fp_list = []
         self.set_paths()
 
-        self.bees = Bees_unflattened()
+        self.__bees = Bees_unflattened()
         self.set_bees()
 
     def set_paths(self):
@@ -72,10 +89,16 @@ class OnePlot():
         for path in self.fp_list:
             count=count_instance(path, 9)
             new_bee = Bees_unflattened(count)
-            self.bees.add(new_bee)
+            self.__bees.add(new_bee)
 
     def get_bees(self):
-        return self.bees
+        if IS_AVE:
+            return self.get_average_bees()
+        else:
+            return self.__bees
+
+    def get_average_bees(self):
+        return self.__bees.ave(max(1,len(self.fp_list)))
 
 
 class OneDay():
@@ -255,7 +278,10 @@ def stats_per_day_cum(round0):
     ax.set_title('Number of bees by days')
     ax.set_xticks(x, [x.tag for x in round0.days_list], fontsize=font_size)
     ax.legend(loc='upper right')
-    ax.set_ylim(0, 1000)
+    if IS_AVE:
+        ax.set_ylim(0, 10)
+    else:
+        ax.set_ylim(0, 1000)
 
     plt.savefig(f"cum_round{round0.round_num}.png")
     plt.close()
@@ -287,7 +313,10 @@ def stats_per_plot_cum(round0):
     ax.set_title('Number of bees by cultivar')
     ax.set_xticks(x , OneDay.plot_tags_list, fontsize=font_size)
     ax.legend(loc='upper right')
-    ax.set_ylim(0, 1000)
+    if IS_AVE:
+        ax.set_ylim(0, 10)
+    else:
+        ax.set_ylim(0, 1000)
 
     plt.savefig(f"cum_plots_round{round0.round_num}.png")
     plt.close()
@@ -305,7 +334,7 @@ def stats_per_day_by_plots(round0):
         if day.tag == "2021":  # TODO make this a tag of the instance instead
             continue
         for plot in day.plots:
-            plots_dict[plot.plot_tag].append(plot.bees)
+            plots_dict[plot.plot_tag].append(plot.get_bees())
         day_list.append(day.tag)
 
     fig, ax = plt.subplots(layout='constrained', figsize=(12.,10.))
@@ -327,7 +356,11 @@ def stats_per_day_by_plots(round0):
     ax.set_title('Number of bees per day by cultivar')
     ax.set_xticks(x + 1.5*width, day_list, fontsize=font_size)
     ax.legend(loc='upper right')
-    ax.set_ylim(0, 1000)
+    if IS_AVE:
+        ax.set_ylim(0, 10)
+    else:
+        ax.set_ylim(0, 1000)
+
 
     plt.savefig(f"day_plots_round{round0.round_num}.png")
     plt.close()
@@ -345,7 +378,7 @@ def stats_per_day_by_plots_cum(round0):
         if day.tag == "2021":  # TODO make this a tag of the instance instead
             continue
         for plot in day.plots:
-            plots_dict[plot.plot_tag].append(plot.bees)
+            plots_dict[plot.plot_tag].append(plot.get_bees())
         day_list.append(day.tag)
 
     fig, ax = plt.subplots(layout='constrained', figsize=(12.,10.))
@@ -370,7 +403,11 @@ def stats_per_day_by_plots_cum(round0):
     ax.set_title('Number of bees per day by cultivar')
     ax.set_xticks(x , day_list, fontsize=font_size)
     ax.legend(loc='upper right')
-    ax.set_ylim(0, 1000)
+    if IS_AVE:
+        ax.set_ylim(0, 10)
+    else:
+        ax.set_ylim(0, 1000)
+
 
     plt.savefig(f"cum_day_plots_round{round0.round_num}.png")
     plt.close()
@@ -388,7 +425,7 @@ def stats_per_day_by_plots_class(round0):
         if day.tag == "2021":  # TODO make this a tag of the instance instead
             continue
         for plot in day.plots:
-            plots_dict[plot.plot_tag].append(plot.bees)
+            plots_dict[plot.plot_tag].append(plot.get_bees())
         day_list.append(day.tag)
 
     fig, ax = plt.subplots(layout='constrained', figsize=(12.,10.))
@@ -425,13 +462,20 @@ def stats_per_day_by_plots_class(round0):
     ax.set_title('Number of bees per day by cultivar')
     ax.set_xticks(x + 1.5*width, day_list, fontsize=font_size)
     ax.legend(loc='upper right')
-    ax.set_ylim(0, 600)
+    if IS_AVE:
+        ax.set_ylim(0, 6)
+    else:
+        ax.set_ylim(0, 600)
+
 
     plt.savefig(f"day_plots_cls_round{round0.round_num}.png")
     plt.close()
 
 
 if __name__ == "__main__":
+
+    IS_AVE = True  # i know this sucks but okay
+    # IS_AVE = False
 
     rounds_dict = {}
 
@@ -453,8 +497,6 @@ if __name__ == "__main__":
         stats_per_day_by_plots(rounds_dict[round_key])
         stats_per_day_by_plots_cum(rounds_dict[round_key])
         stats_per_day_by_plots_class(rounds_dict[round_key])
-
-
-
+        stats_per_day_by_plots_class(rounds_dict[round_key])
 
 
