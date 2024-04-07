@@ -376,6 +376,61 @@ def stats_per_day_by_plots_cum(round0):
     plt.close()
 
 
+# stats per day per plot, w class breakdown
+def stats_per_day_by_plots_class(round0):
+    plots_dict = {}
+    day_list = []
+
+    for plot_tag in OneDay.plot_tags_list:
+        plots_dict[plot_tag] = []
+
+    for day in round0.days_list:
+        if day.tag == "2021":  # TODO make this a tag of the instance instead
+            continue
+        for plot in day.plots:
+            plots_dict[plot.plot_tag].append(plot.bees)
+        day_list.append(day.tag)
+
+    fig, ax = plt.subplots(layout='constrained', figsize=(12.,10.))
+    x = np.arange(len(plots_dict[OneDay.plot_tags_list[0]]))  # FIXME the label locations
+    width = 0.2  # the width of the bars
+    multiplier = 0
+    font_size = 22
+
+    for plot_tag in plots_dict:
+        bottom = np.zeros(len(plots_dict[plot_tag]))
+        offset = width * multiplier
+
+        heights = [bees.bees_total.honeybees for bees in plots_dict[plot_tag]]
+        rects = ax.bar(x + offset, heights, width, label=f"{plot_tag}_honeybee", bottom=bottom, color="tab:blue")
+        bottom += heights
+
+        heights = [bees.bees_total.bumblebees for bees in plots_dict[plot_tag]]
+        rects = ax.bar(x + offset, heights, width, label=f"{plot_tag}_bumblebee", bottom=bottom, color="tab:green")
+        bottom += heights
+
+        heights = [bees.bees_total.unknownbees for bees in plots_dict[plot_tag]]
+        rects = ax.bar(x + offset, heights, width, label=f"{plot_tag}_unknown bee", bottom=bottom, color="tab:orange")
+
+        ax.bar_label(rects, padding=20, fontsize=font_size) 
+        bottom += heights
+        for xnew, h, in zip(x+offset,bottom):
+            plt.text(xnew, h, plot_tag, ha="center",fontsize=18)
+
+        multiplier += 1
+
+    plt.rcParams.update({'font.size': font_size})
+    ax.tick_params(labelsize=font_size)
+    ax.set_ylabel('No. of bees', fontsize=font_size)
+    ax.set_title('Number of bees per day by cultivar')
+    ax.set_xticks(x + 1.5*width, day_list, fontsize=font_size)
+    ax.legend(loc='upper right')
+    ax.set_ylim(0, 600)
+
+    plt.savefig(f"day_plots_cls_round{round0.round_num}.png")
+    plt.close()
+
+
 if __name__ == "__main__":
 
     rounds_dict = {}
@@ -397,6 +452,7 @@ if __name__ == "__main__":
         stats_per_plot_cum(rounds_dict[round_key])  # stats of days per plot, stacked bar
         stats_per_day_by_plots(rounds_dict[round_key])
         stats_per_day_by_plots_cum(rounds_dict[round_key])
+        stats_per_day_by_plots_class(rounds_dict[round_key])
 
 
 
