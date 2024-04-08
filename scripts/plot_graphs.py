@@ -130,6 +130,14 @@ class OneDay():
     def set_paths(self, labels_dir):
         self.paths = glob.glob(os.path.join(labels_dir, self.tag+"*"))
 
+        # remove blacklist files
+        for black_fn in BLACKLIST:
+            try:
+                self.paths.remove(os.path.join(labels_dir, black_fn))
+            except:
+                pass
+
+
     def set_plots(self):
         for plot_tag, plot_area in zip(OneDay.plot_tags_list, self.plots_areas):
             self.plots.append(OnePlot(self.paths, plot_tag, plot_area))
@@ -494,9 +502,12 @@ if __name__ == "__main__":
     IS_AVE = True  # i know this sucks but okay
     # IS_AVE = False
 
-    AVE_Y_MAX = 12
+    AVE_Y_MAX = 12  # only for ave
 
-    files_blacklist_fp = "blacklist_img_fn.txt"
+    blacklist_fp = "blacklist_labels_fn.txt"  
+    blacklist_f = open(blacklist_fp, "r")
+    BLACKLIST = [x.strip() for x in blacklist_f.readlines()] # what, another global variable??!!
+
 
     rounds_dict = {}
 
