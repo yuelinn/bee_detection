@@ -104,7 +104,7 @@ class OnePlot():
         if len(self.fp_list) <= 0:
             ave_bees = self.__bees
         else:
-            ave_bees = self.__bees.ave(len(self.fp_list) * self.plot_area)
+            ave_bees = self.__bees.ave((len(self.fp_list)-1) * self.plot_area * HZ_FACTOR)
         return ave_bees
 
 
@@ -573,8 +573,11 @@ if __name__ == "__main__":
 
     IS_AVE = True  # i know this sucks but okay
     # IS_AVE = False
+    
+    img_dt = 10  # 10s between images 
+    HZ_FACTOR = img_dt / 3600 
 
-    AVE_Y_MAX = 12  # only for ave
+    AVE_Y_MAX = 3000  # only for ave
 
     blacklist_fp = "blacklist_labels_fn.txt"  
     blacklist_f = open(blacklist_fp, "r")
