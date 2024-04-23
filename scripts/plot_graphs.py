@@ -159,6 +159,14 @@ class OneRound():
     day_tags_dict["220721"] = [0.91, 1.12, 0.95, 0.79]
     day_tags_dict["2021"] = None
 
+    """
+    day_tags_dict["220710"] = [1.0, 1.0, 1.0, 1.0]  # PM75  & F  & P  & FM
+    day_tags_dict["220717"] = [1.0, 1.0, 1.0, 1.0]
+    day_tags_dict["220719"] = [1.0, 1.0, 1.0, 1.0]
+    day_tags_dict["220720"] = [1.0, 1.0, 1.0, 1.0]
+    day_tags_dict["220721"] = [1.0, 1.0, 1.0, 1.0]
+    """
+
     def __init__(self, round_num, labels_dir):
         self.round_num = round_num
         self.labels_dir = labels_dir
@@ -432,7 +440,6 @@ def stats_per_day_by_plots_cum(round0):
     else:
         ax.set_ylim(0, 1000)
 
-
     plt.savefig(f"cum_day_plots_round{round0.round_num}.png")
     plt.close()
 
@@ -497,6 +504,71 @@ def stats_per_day_by_plots_class(round0):
     plt.close()
 
 
+# num of images taken
+def num_of_pics(round0):
+    fig, ax = plt.subplots(layout='constrained', figsize=(12.,10.))
+    x = np.arange(len(OneDay.plot_tags_list))  # FIXME the label locations
+    width = 0.5  # the width of the bars
+    # multiplier = 0
+    font_size = 22
+    bottom = np.zeros(len(OneDay.plot_tags_list))
+
+    for day in round0.days_list:
+        if day.tag == "2021":  # TODO make this a tag of the instance instead
+            continue
+        heights = [len(plot.fp_list) for plot in day.plots]
+        # offset = width * multiplier
+        offset = 0
+        rects = ax.bar(x + offset, heights, width, label=day.tag, bottom=bottom)
+        # multiplier += 1
+        bottom += heights
+        ax.bar_label(rects, padding=0, fontsize=font_size, label_type="center") 
+
+    plt.rcParams.update({'font.size': font_size})
+    ax.tick_params(labelsize=font_size)
+    ax.set_ylabel('No. of images', fontsize=font_size)
+    ax.set_title('Number of images taken')
+    ax.set_xticks(x , OneDay.plot_tags_list, fontsize=font_size)
+    ax.legend(loc='upper right')
+    ax.set_ylim(0, 1000)
+
+    plt.savefig(f"imgs_cum_plots_round{round0.round_num}.png")
+    plt.close()
+
+
+# plot fov
+def fov_area(round0):
+    fig, ax = plt.subplots(layout='constrained', figsize=(12.,10.))
+    x = np.arange(len(OneDay.plot_tags_list))  # FIXME the label locations
+    width = 0.5  # the width of the bars
+    # multiplier = 0
+    font_size = 22
+    bottom = np.zeros(len(OneDay.plot_tags_list))
+
+    for day in round0.days_list:
+        if day.tag == "2021":  # TODO make this a tag of the instance instead
+            continue
+        heights = [plot.plot_area for plot in day.plots]
+        # offset = width * multiplier
+        offset = 0
+        rects = ax.bar(x + offset, heights, width, label=day.tag, bottom=bottom)
+        # multiplier += 1
+        bottom += heights
+    ax.bar_label(rects, padding=0, fontsize=font_size, fmt="%.2f") 
+
+    plt.rcParams.update({'font.size': font_size})
+    ax.tick_params(labelsize=font_size)
+    ax.set_ylabel('No. of bees', fontsize=font_size)
+    ax.set_title('Number of images taken')
+    ax.set_xticks(x , OneDay.plot_tags_list, fontsize=font_size)
+    ax.legend(loc='upper right')
+    ax.set_ylim(0, 10)
+
+    plt.savefig(f"fov_area_cum_plots_round{round0.round_num}.png")
+    plt.close()
+
+
+
 if __name__ == "__main__":
 
     IS_AVE = True  # i know this sucks but okay
@@ -519,6 +591,10 @@ if __name__ == "__main__":
     rounds_dict["2.5"] = OneRound(2.5, "/mnt/mon13/bees/hiwiNr1Nr2r3_unchecked/labels")
     rounds_dict["3"] = OneRound(3, "/media/linn/export10tb/bees/iterative_labelling/round3_ds/qced/alles_unflattened/labels")
     rounds_dict["3.5"] = OneRound(3.5, "/mnt/mon13/bees/hiwiNr1-4_unchecked/labels")
+    rounds_dict["4"] = OneRound(4, "/media/linn/export10tb/bees/iterative_labelling/round4_ds/qced/alles_unflattened/labels")
+    rounds_dict["4.5"] = OneRound(4.5, "/mnt/mon13/bees/hiwiNr1-5_unchecked/labels")
+    rounds_dict["5"] = OneRound(5, "/media/linn/export10tb/bees/iterative_labelling/round5_ds/qced/alles_unflattened/labels")
+
 
     for round_key in rounds_dict:
         rounds_dict[round_key].print_round()     # stats per round
@@ -530,5 +606,8 @@ if __name__ == "__main__":
         stats_per_day_by_plots_cum(rounds_dict[round_key])
         stats_per_day_by_plots_class(rounds_dict[round_key])
         stats_per_day_by_plots_class(rounds_dict[round_key])
+        num_of_pics(rounds_dict[round_key])
+        fov_area(rounds_dict[round_key])
+
 
 
