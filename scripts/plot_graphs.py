@@ -311,7 +311,7 @@ def stats_per_day_cum(round0):
     ax.set_xticks(x, [x.tag for x in round0.days_list], fontsize=font_size)
     ax.legend(loc='upper right')
     if IS_AVE:
-        ax.set_ylim(0, AVE_Y_MAX)
+        ax.set_ylim(0, 4000)
     else:
         ax.set_ylim(0, 1000)
 
@@ -321,7 +321,7 @@ def stats_per_day_cum(round0):
 
 # stats per plot, but stacked to show cummulative 
 def stats_per_plot_cum(round0):
-    fig, ax = plt.subplots(layout='constrained', figsize=(12.,10.))
+    fig, ax = plt.subplots(layout='constrained', figsize=(14.,10.))
     x = np.arange(len(OneDay.plot_tags_list))  # FIXME the label locations
     width = 0.5  # the width of the bars
     # multiplier = 0
@@ -337,16 +337,18 @@ def stats_per_plot_cum(round0):
         rects = ax.bar(x + offset, heights, width, label=day.tag, bottom=bottom)
         # multiplier += 1
         bottom += heights
-    ax.bar_label(rects, padding=0, fontsize=font_size, fmt="%.2f") 
+    ax.bar_label(rects, padding=0, fontsize=font_size, fmt="%.0f") 
 
     plt.rcParams.update({'font.size': font_size})
     ax.tick_params(labelsize=font_size)
-    ax.set_ylabel('No. of bees', fontsize=font_size)
-    ax.set_title('Number of bees by cultivar')
-    ax.set_xticks(x , OneDay.plot_tags_list, fontsize=font_size)
-    ax.legend(loc='upper right')
+    ax.set_ylabel('No. of individuals per meter squared and per hour', fontsize=font_size)
+    ax.set_xlabel('Treatment', fontsize=font_size)
+    ax.set_title('Number of individuals per meter squared and per hour by treatment and date', fontsize=font_size)
+    ax.set_xticks(x , ["PM75", "F", "P", "FM"], fontsize=font_size)
+    # ax.set_xticks(x , OneDay.plot_tags_list, fontsize=font_size)
+    ax.legend(loc='upper right', title="Dates")
     if IS_AVE:
-        ax.set_ylim(0, AVE_Y_MAX)
+        ax.set_ylim(0, 3500)
     else:
         ax.set_ylim(0, 1000)
 
@@ -495,7 +497,7 @@ def stats_per_day_by_plots_class(round0):
 
     fig, ax = plt.subplots(layout='constrained', figsize=(14.,10.))
     x = np.arange(len(plots_dict[OneDay.plot_tags_list[0]]))  # FIXME the label locations
-    ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+    ax.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
     width = 0.2  # the width of the bars
     multiplier = 0
     font_size = 22
@@ -615,7 +617,7 @@ if __name__ == "__main__":
     img_dt = 10  # 10s between images 
     HZ_FACTOR = img_dt / 3600 
 
-    AVE_Y_MAX = 3000  # only for ave
+    AVE_Y_MAX = 4000  # only for ave
 
     blacklist_fp = "blacklist_labels_fn.txt"  
     blacklist_f = open(blacklist_fp, "r")
