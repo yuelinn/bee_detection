@@ -445,7 +445,7 @@ def stats_per_day_by_plots_cum(round0):
 
 
 # stats per day per plot, w class breakdown
-def stats_per_day_by_plots_class(round0):
+def print_stats_per_day_by_plots_class(round0):
     plots_dict = {}
     day_list = []
 
@@ -466,36 +466,74 @@ def stats_per_day_by_plots_class(round0):
     multiplier = 0
     font_size = 22
 
+    for day_i in range(len(plots_dict[plot_tag])):
+        print("day", day_i)
+        for plot_tag in plots_dict:
+            print("{:.2f}".format(plots_dict[plot_tag][day_i].bees_total.honeybees), end=' & ')
+        for plot_tag in plots_dict:
+            print("{:.2f}".format(plots_dict[plot_tag][day_i].bees_total.bumblebees), end=' & ')
+        for plot_tag in plots_dict:
+            print("{:.2f}".format(plots_dict[plot_tag][day_i].bees_total.unknownbees), end=' & ')
+        print()
+
+
+
+# stats per day per plot, w class breakdown
+def stats_per_day_by_plots_class(round0):
+    plots_dict = {}
+    day_list = []
+
+    for plot_tag in OneDay.plot_tags_list:
+        plots_dict[plot_tag] = []
+
+    for day in round0.days_list:
+        if day.tag == "2021":  # TODO make this a tag of the instance instead
+            continue
+        for plot in day.plots:
+            plots_dict[plot.plot_tag].append(plot.get_bees())
+        day_list.append(day.tag)
+
+    fig, ax = plt.subplots(layout='constrained', figsize=(14.,10.))
+    x = np.arange(len(plots_dict[OneDay.plot_tags_list[0]]))  # FIXME the label locations
+    ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+    width = 0.2  # the width of the bars
+    multiplier = 0
+    font_size = 22
+
     for plot_tag in plots_dict:
         bottom = np.zeros(len(plots_dict[plot_tag]))
         offset = width * multiplier
 
         heights = [bees.bees_total.honeybees for bees in plots_dict[plot_tag]]
-        rects = ax.bar(x + offset, heights, width, label=f"{plot_tag}_honeybee", bottom=bottom, color="tab:blue")
+        rects_h = ax.bar(x + offset, heights, width, label=f"{plot_tag}_honeybee", bottom=bottom, color="tab:blue")
         bottom += heights
+        # ax.bar_label(rects, fontsize=12, fmt="%.2f") 
 
         heights = [bees.bees_total.bumblebees for bees in plots_dict[plot_tag]]
-        rects = ax.bar(x + offset, heights, width, label=f"{plot_tag}_bumblebee", bottom=bottom, color="tab:green")
+        rects_b = ax.bar(x + offset, heights, width, label=f"{plot_tag}_bumblebee", bottom=bottom, color="tab:green")
         bottom += heights
+        # ax.bar_label(rects, fontsize=12, fmt="%.2f") 
 
         heights = [bees.bees_total.unknownbees for bees in plots_dict[plot_tag]]
-        rects = ax.bar(x + offset, heights, width, label=f"{plot_tag}_unknown bee", bottom=bottom, color="tab:orange")
+        rects_u = ax.bar(x + offset, heights, width, label=f"{plot_tag}_unknown bee", bottom=bottom, color="tab:orange")
+        # ax.bar_label(rects, fontsize=12, fmt="%.2f") 
 
-        ax.bar_label(rects, padding=20, fontsize=12, fmt="%.2f") 
+        ax.bar_label(rects_u, padding=20, fontsize=12, fmt="%.0f") 
         bottom += heights
         for xnew, h, in zip(x+offset,bottom):
-            plt.text(xnew, h, plot_tag, ha="center",fontsize=16)
+            plt.text(xnew, h+ 10, plot_tag, ha="center",fontsize=16)
 
         multiplier += 1
 
     plt.rcParams.update({'font.size': font_size})
     ax.tick_params(labelsize=font_size)
-    ax.set_ylabel('No. of bees', fontsize=font_size)
-    ax.set_title('Number of bees per day by cultivar')
+    ax.set_ylabel('No. of individuals', fontsize=font_size)
+    ax.set_xlabel('Date', fontsize=font_size)
+    ax.set_title('Number of individuals for each day and treatment, per meter square per hour', fontsize=font_size)
     ax.set_xticks(x + 1.5*width, day_list, fontsize=font_size)
-    ax.legend(loc='upper right')
+    ax.legend(loc='upper right', handles=[rects_h, rects_b, rects_u] , labels=["honey bee", "bumblebee", "unknown insect"])
     if IS_AVE:
-        ax.set_ylim(0, 6)
+        ax.set_ylim(0, 1800)
     else:
         ax.set_ylim(0, 600)
 
@@ -611,6 +649,5 @@ if __name__ == "__main__":
         stats_per_day_by_plots_class(rounds_dict[round_key])
         num_of_pics(rounds_dict[round_key])
         fov_area(rounds_dict[round_key])
-
-
+    print_stats_per_day_by_plots_class(rounds_dict["5"])
 
