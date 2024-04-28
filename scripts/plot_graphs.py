@@ -320,6 +320,71 @@ def stats_per_day_cum(round0):
 
 
 # stats per plot, but stacked to show cummulative 
+def stats_per_plot_per_class_cum(round0):
+    fig, ax = plt.subplots(layout='constrained', figsize=(14.,10.))
+    x = np.arange(len(OneDay.plot_tags_list))  # FIXME the label locations
+    width = 0.5  # the width of the bars
+    # multiplier = 0
+    font_size = 22
+    bottom = np.zeros(len(OneDay.plot_tags_list))
+    bees_dict = {}
+
+    for plot in OneDay.plot_tags_list:
+        bees_dict[plot] = Bees()
+
+    for day in round0.days_list:
+        if day.tag == "2021":  # TODO make this a tag of the instance instead
+            continue
+
+        for plot in day.plots:
+            bees_dict[plot.plot_tag].add(plot.get_bees().bees_total)
+
+    offset = 0
+
+    # honey bees
+    heights = []
+    for plot_tag in bees_dict:
+        heights.append(bees_dict[plot_tag].honeybees)
+    rects = ax.bar(x + offset, heights, width, label="honey bee", bottom=bottom)
+    bottom += heights
+    ax.bar_label(rects, padding=0, fontsize=font_size, fmt="%.0f", label_type="center") 
+
+    # bumblebees
+    heights = []
+    for plot_tag in bees_dict:
+        heights.append(bees_dict[plot_tag].bumblebees)
+    rects = ax.bar(x + offset, heights, width, label="bumblebee", bottom=bottom)
+    bottom += heights
+    ax.bar_label(rects, padding=0, fontsize=font_size, fmt="%.0f", label_type="center") 
+
+    # unknown bees 
+    heights = []
+    for plot_tag in bees_dict:
+        heights.append(bees_dict[plot_tag].unknownbees)
+    rects = ax.bar(x + offset, heights, width, label="unknown insect", bottom=bottom)
+    bottom += heights
+
+    ax.bar_label(rects, padding=0, fontsize=font_size, fmt="%.0f", label_type="center") 
+
+    plt.rcParams.update({'font.size': font_size})
+    ax.tick_params(labelsize=font_size)
+    ax.set_ylabel('No. of individuals per meter squared and per hour', fontsize=font_size)
+    ax.set_xlabel('Treatment', fontsize=font_size)
+    ax.set_title('Number of individuals per meter squared and per hour by treatment and insect type', fontsize=font_size)
+    ax.set_xticks(x , ["PM75", "F", "P", "FM"], fontsize=font_size)
+    # ax.set_xticks(x , OneDay.plot_tags_list, fontsize=font_size)
+    ax.legend(loc='upper right', title="Insect type")
+    if IS_AVE:
+        ax.set_ylim(0, 3500)
+    else:
+        ax.set_ylim(0, 1000)
+
+    plt.savefig(f"cum_plots_by_class_round{round0.round_num}.png")
+    plt.close()
+
+
+
+# stats per plot, but stacked to show cummulative 
 def stats_per_plot_cum(round0):
     fig, ax = plt.subplots(layout='constrained', figsize=(14.,10.))
     x = np.arange(len(OneDay.plot_tags_list))  # FIXME the label locations
@@ -651,5 +716,6 @@ if __name__ == "__main__":
         stats_per_day_by_plots_class(rounds_dict[round_key])
         num_of_pics(rounds_dict[round_key])
         fov_area(rounds_dict[round_key])
+        stats_per_plot_per_class_cum(rounds_dict[round_key])  # stats of days per plot, stacked bar
     print_stats_per_day_by_plots_class(rounds_dict["5"])
 
