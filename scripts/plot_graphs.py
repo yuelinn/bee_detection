@@ -673,8 +673,53 @@ def fov_area(round0):
     plt.close()
 
 
+def stats_per_round(rounds_dict):
+    """Draw line graph for how stats change across rounds
+    """
+    fig, ax = plt.subplots(layout='constrained', figsize=(12.,10.))
+    font_size = 22
+
+    x = [0, 1, 2, 3, 4, 5]
+    total_bees = []
+    total_honey = []
+    total_bumble = []
+    total_unknown = []
+
+    for round_id in x:
+        total_bees.append(int(rounds_dict[str(round_id)].get_total_bees().bees_total.total_bees))
+        total_honey.append(int(rounds_dict[str(round_id)].get_total_bees().bees_total.honeybees))
+        total_bumble.append(int(rounds_dict[str(round_id)].get_total_bees().bees_total.bumblebees))
+        total_unknown.append(int(rounds_dict[str(round_id)].get_total_bees().bees_total.unknownbees))
+
+    # total bees 
+    ax.plot(x, total_honey, "o-")
+    ax.plot(x, total_bumble, "o-")
+    ax.plot(x, total_unknown, "o-")
+    ax.plot(x, total_bees, "o-")
+
+    plt.rcParams.update({'font.size': font_size})
+    ax.tick_params(labelsize=font_size)
+    ax.set_ylabel('No. of individuals', fontsize=font_size)
+    ax.set_xlabel('Round', fontsize=font_size)
+ 
+    ax.legend(loc='upper right', labels=[
+        "honey bees", 
+        "bumblebees", 
+        "unknown insects",
+        "sum of individuals", 
+        ])
+    ax.set_title('Number of annotated individuals by round')
+    ax.set_ylim(0, 3000)
+    ax.grid()
+    plt.savefig(f"num_bees_by_round_line_graph.png")
+    plt.close()
+
+    # print numbers for table
+    for i, round_id in enumerate(x):
+        print(f"{round_id} & {total_honey[i]} & {total_bumble[i]} & {total_unknown[i]} & {total_bees[i]} \\\\")
 
 if __name__ == "__main__":
+    is_rounds_style= True
 
     IS_AVE = True  # i know this sucks but okay
     # IS_AVE = False
@@ -687,6 +732,10 @@ if __name__ == "__main__":
     blacklist_fp = "blacklist_labels_fn.txt"  
     blacklist_f = open(blacklist_fp, "r")
     BLACKLIST = [x.strip() for x in blacklist_f.readlines()] # what, another global variable??!!
+
+    if is_rounds_style:
+        BLACKLIST = []
+        IS_AVE=False
 
 
     rounds_dict = {}
@@ -703,19 +752,22 @@ if __name__ == "__main__":
     rounds_dict["4.5"] = OneRound(4.5, "/mnt/mon13/bees/hiwiNr1-5_unchecked/labels")
     rounds_dict["5"] = OneRound(5, "/media/linn/export10tb/bees/iterative_labelling/round5_ds/qced/alles_unflattened/labels")
 
+    if not is_rounds_style:
+        for round_key in rounds_dict:
+            rounds_dict[round_key].print_round()     # stats per round
+            stats_per_day(rounds_dict[round_key])  # stats of days per round
+            stats_per_plot(rounds_dict[round_key])  # stats of days per plot
+            stats_per_day_cum(rounds_dict[round_key])  # stats of days per round, stacked bar 
+            stats_per_plot_cum(rounds_dict[round_key])  # stats of days per plot, stacked bar
+            stats_per_day_by_plots(rounds_dict[round_key])
+            stats_per_day_by_plots_cum(rounds_dict[round_key])
+            stats_per_day_by_plots_class(rounds_dict[round_key])
+            stats_per_day_by_plots_class(rounds_dict[round_key])
+            num_of_pics(rounds_dict[round_key])
+            fov_area(rounds_dict[round_key])
+            stats_per_plot_per_class_cum(rounds_dict[round_key])  # stats of days per plot, stacked bar
+        print_stats_per_day_by_plots_class(rounds_dict["5"])
 
-    for round_key in rounds_dict:
-        rounds_dict[round_key].print_round()     # stats per round
-        stats_per_day(rounds_dict[round_key])  # stats of days per round
-        stats_per_plot(rounds_dict[round_key])  # stats of days per plot
-        stats_per_day_cum(rounds_dict[round_key])  # stats of days per round, stacked bar 
-        stats_per_plot_cum(rounds_dict[round_key])  # stats of days per plot, stacked bar
-        stats_per_day_by_plots(rounds_dict[round_key])
-        stats_per_day_by_plots_cum(rounds_dict[round_key])
-        stats_per_day_by_plots_class(rounds_dict[round_key])
-        stats_per_day_by_plots_class(rounds_dict[round_key])
-        num_of_pics(rounds_dict[round_key])
-        fov_area(rounds_dict[round_key])
-        stats_per_plot_per_class_cum(rounds_dict[round_key])  # stats of days per plot, stacked bar
-    print_stats_per_day_by_plots_class(rounds_dict["5"])
+    else:
+        stats_per_round(rounds_dict)
 
