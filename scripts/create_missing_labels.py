@@ -29,8 +29,13 @@ if __name__ == '__main__':
         create_empty_labels(labels_dir, imgs_dir)
     """
     
-    parent_dir = "/mnt/mon13/bees/runs/detect/round1"
+    """
+    parent_dir = "/mnt/mon13/bees/runs/detect/round2_lowerc_nms4"
     imgs_dir = os.path.join(parent_dir, "images")
     labels_dir = os.path.join(parent_dir, "labels")
+    """
+    imgs_dir = "/media/linn/export10tb/bees/dataset_old/cp_datasets/alles/images"
+    # labels_dir = "/media/linn/export10tb/bees/iterative_labelling/round4_ds/qced/alles_unflattened"
+    labels_dir = "/mnt/mon13/bees/runs/detect/round5/labels"
     create_empty_labels(labels_dir, imgs_dir)
  
