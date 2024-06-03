@@ -1,5 +1,5 @@
-treatment,classical,ML-based
-PM75,X,X
-F,X,X
-P,X,X
-FM,X,X
+treatment,ML-based,classical
+PM75,1690,345
+F,612,630
+P,1109,720
+FM,408,510
