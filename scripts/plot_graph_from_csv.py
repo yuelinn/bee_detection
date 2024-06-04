@@ -16,10 +16,17 @@ def plot_vs_bar(csv_fp):
 
     fig, ax = plt.subplots(layout='constrained', figsize=(12.,10.))
     x = np.arange(len(dates_list))  # the label location
-    ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-    width = 0.2  # the width of the bars
+    ax.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
+    width = 0.4  # the width of the bars
     multiplier = 0
     font_size = 22
+    day_list = [
+            "July 17",
+            "July 19",
+            "July 20",
+            "July 21",
+            ]
+
 
     for type_i in range(2):
         # puh, im sure there is a better way to do this
@@ -42,12 +49,14 @@ def plot_vs_bar(csv_fp):
 
     plt.rcParams.update({'font.size': font_size})
     ax.tick_params(labelsize=font_size)
-    ax.set_ylabel('No. of individuals per meter squared, per hour', fontsize=font_size)
-    ax.set_title('Number of individuals per meter squared, per hour by evaluation method')
-    ax.set_xticks(x + width, [x for x in dates_list], fontsize=font_size)
+    ax.set_ylabel('No. of individuals ($\mathregular{h^{-1}m^{-2}}$)', fontsize=font_size)
+    # ax.set_title('Number of individuals ($\mathregular{h^{-1}m^{-2}}$) by evaluation method')
+    ax.set_xticks(x + width/2, day_list, fontsize=font_size)
     ax.legend(loc='upper right')
+    ax.set_ylim(0, 1800)
 
-    plt.savefig(f"classic_vs_ml.png")
+    plt.savefig(f"classic_vs_ml_notitle.png")
+    # plt.savefig(f"classic_vs_ml.png")
     plt.close()
     # import pdb; pdb.set_trace()
 
@@ -59,8 +68,8 @@ def plot_by_treatment(csv_fp):
 
     fig, ax = plt.subplots(layout='constrained', figsize=(12.,10.))
     x = np.arange(len(dates_list))  # the label location
-    ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-    width = 0.2  # the width of the bars
+    ax.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
+    width = 0.4  # the width of the bars
     multiplier = 0
     font_size = 22
 
@@ -86,12 +95,13 @@ def plot_by_treatment(csv_fp):
     plt.rcParams.update({'font.size': font_size})
     ax.tick_params(labelsize=font_size)
     ax.set_ylabel('No. of individuals ($\mathregular{h^{-1}m^{-2}}$)', fontsize=font_size)
-    # ax.set_title('Number of individuals ($\mathregular{h^{-1}m^{-2}}$) per treatment\n by evaluation method')
-    ax.set_xticks(x + width, [x for x in dates_list], fontsize=font_size)
+    ax.set_title('Number of individuals ($\mathregular{h^{-1}m^{-2}}$) per treatment\n by evaluation method')
+    ax.set_xticks(x + width/2, [x for x in dates_list], fontsize=font_size)
     ax.legend(loc='upper right')
+    ax.set_ylim(0, 1800)
 
-    plt.savefig(f"classic_vs_ml_by_treatment_notitle.png")
-    # plt.savefig(f"classic_vs_ml_by_treatment.png")
+    # plt.savefig(f"classic_vs_ml_by_treatment_notitle.png")
+    plt.savefig(f"classic_vs_ml_by_treatment.png")
     plt.close()
 
     # import pdb; pdb.set_trace()
@@ -99,7 +109,7 @@ def plot_by_treatment(csv_fp):
 
 if __name__ == "__main__":
     csv_dir = "../data_csvs"
-    # plot_vs_bar(os.path.join(csv_dir, "classic_vs_ml.csv"))
+    plot_vs_bar(os.path.join(csv_dir, "classic_vs_ml.csv"))
     plot_by_treatment(os.path.join(csv_dir, "by_treatment.csv"))
 
 
