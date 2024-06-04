@@ -109,6 +109,7 @@ class OnePlot():
 
 
 class OneDay():
+    # plot_tags_list = ["PM75", "F", "P", "FM"]
     plot_tags_list = ["PM", "WF", "PH", "WM"]
     # plot_tags_list = ["PM", "PH", "WM", "WF"]
     def __init__(self, day_tag, labels_dir, is_no_plots=False, plots_areas=None):
@@ -345,7 +346,7 @@ def stats_per_plot_per_class_cum(round0):
     heights = []
     for plot_tag in bees_dict:
         heights.append(bees_dict[plot_tag].honeybees)
-    rects = ax.bar(x + offset, heights, width, label="honey bee", bottom=bottom)
+    rects = ax.bar(x + offset, heights, width, label="honeybee", bottom=bottom)
     bottom += heights
     ax.bar_label(rects, padding=0, fontsize=font_size, fmt="%.0f", label_type="center") 
 
@@ -361,25 +362,25 @@ def stats_per_plot_per_class_cum(round0):
     heights = []
     for plot_tag in bees_dict:
         heights.append(bees_dict[plot_tag].unknownbees)
-    rects = ax.bar(x + offset, heights, width, label="unknown insect", bottom=bottom)
+    rects = ax.bar(x + offset, heights, width, label="unidentified\ninsect", bottom=bottom)
     bottom += heights
 
     ax.bar_label(rects, padding=0, fontsize=font_size, fmt="%.0f", label_type="center") 
 
     plt.rcParams.update({'font.size': font_size})
     ax.tick_params(labelsize=font_size)
-    ax.set_ylabel('No. of individuals per meter squared and per hour', fontsize=font_size)
+    ax.set_ylabel('No. of individuals ($\mathregular{h^{-1}m^{-2}}$)', fontsize=font_size)
     ax.set_xlabel('Treatment', fontsize=font_size)
-    ax.set_title('Number of individuals per meter squared and per hour by treatment and insect type', fontsize=font_size)
+    # ax.set_title('Number of individuals ($\mathregular{h^{-1}m^{-2}}$) by treatment and insect taxon', fontsize=font_size)
     ax.set_xticks(x , ["PM75", "F", "P", "FM"], fontsize=font_size)
     # ax.set_xticks(x , OneDay.plot_tags_list, fontsize=font_size)
-    ax.legend(loc='upper right', title="Insect type")
+    ax.legend(loc='upper right', title="Insect taxon")
     if IS_AVE:
         ax.set_ylim(0, 3500)
     else:
         ax.set_ylim(0, 1000)
 
-    plt.savefig(f"cum_plots_by_class_round{round0.round_num}.png")
+    plt.savefig(f"cum_plots_by_class_round{round0.round_num}_notitle.png")
     plt.close()
 
 
@@ -392,6 +393,13 @@ def stats_per_plot_cum(round0):
     # multiplier = 0
     font_size = 22
     bottom = np.zeros(len(OneDay.plot_tags_list))
+    day_list = [
+            "July 10",
+            "July 17",
+            "July 19",
+            "July 20",
+            "July 21",
+            ]
 
     for day in round0.days_list:
         if day.tag == "2021":  # TODO make this a tag of the instance instead
@@ -406,18 +414,18 @@ def stats_per_plot_cum(round0):
 
     plt.rcParams.update({'font.size': font_size})
     ax.tick_params(labelsize=font_size)
-    ax.set_ylabel('No. of individuals per meter squared and per hour', fontsize=font_size)
+    ax.set_ylabel('No. of individuals ($\mathregular{h^{-1}m^{-2}}$)', fontsize=font_size)
     ax.set_xlabel('Treatment', fontsize=font_size)
-    ax.set_title('Number of individuals per meter squared and per hour by treatment and date', fontsize=font_size)
+    # ax.set_title('Number of individuals ($\mathregular{h^{-1}m^{-2}}$) by treatment and date', fontsize=font_size)
     ax.set_xticks(x , ["PM75", "F", "P", "FM"], fontsize=font_size)
     # ax.set_xticks(x , OneDay.plot_tags_list, fontsize=font_size)
-    ax.legend(loc='upper right', title="Dates")
+    ax.legend(loc='upper right', title="Dates", labels=day_list)
     if IS_AVE:
         ax.set_ylim(0, 3500)
     else:
         ax.set_ylim(0, 1000)
 
-    plt.savefig(f"cum_plots_round{round0.round_num}.png")
+    plt.savefig(f"cum_plots_round{round0.round_num}_notitle.png")
     plt.close()
 
 
@@ -548,7 +556,14 @@ def print_stats_per_day_by_plots_class(round0):
 # stats per day per plot, w class breakdown
 def stats_per_day_by_plots_class(round0):
     plots_dict = {}
-    day_list = []
+    # day_list = []
+    day_list = [
+            "July 10",
+            "July 17",
+            "July 19",
+            "July 20",
+            "July 21",
+            ]
 
     for plot_tag in OneDay.plot_tags_list:
         plots_dict[plot_tag] = []
@@ -558,7 +573,9 @@ def stats_per_day_by_plots_class(round0):
             continue
         for plot in day.plots:
             plots_dict[plot.plot_tag].append(plot.get_bees())
-        day_list.append(day.tag)
+        # day_list.append(day.tag)
+
+
 
     fig, ax = plt.subplots(layout='constrained', figsize=(14.,10.))
     x = np.arange(len(plots_dict[OneDay.plot_tags_list[0]]))  # FIXME the label locations
@@ -566,8 +583,9 @@ def stats_per_day_by_plots_class(round0):
     width = 0.2  # the width of the bars
     multiplier = 0
     font_size = 22
+    plot_tag_paper_list = ["PM75", "F", "P", "FM"]
 
-    for plot_tag in plots_dict:
+    for plot_tag, plot_tag_paper in zip(plots_dict, plot_tag_paper_list):
         bottom = np.zeros(len(plots_dict[plot_tag]))
         offset = width * multiplier
 
@@ -588,24 +606,28 @@ def stats_per_day_by_plots_class(round0):
         ax.bar_label(rects_u, padding=20, fontsize=12, fmt="%.0f") 
         bottom += heights
         for xnew, h, in zip(x+offset,bottom):
-            plt.text(xnew, h+ 10, plot_tag, ha="center",fontsize=16)
+            plt.text(xnew, h+ 10, plot_tag_paper, ha="center",fontsize=12)
 
         multiplier += 1
 
     plt.rcParams.update({'font.size': font_size})
     ax.tick_params(labelsize=font_size)
-    ax.set_ylabel('No. of individuals', fontsize=font_size)
+    ax.set_ylabel('No. of individuals ($\mathregular{h^{-1}m^{-2}}$)', fontsize=font_size)
     ax.set_xlabel('Date', fontsize=font_size)
-    ax.set_title('Number of individuals for each day and treatment, per meter square per hour', fontsize=font_size)
+    # ax.set_title('Number of individuals for each day and treatment ($\mathregular{h^{-1}m^{-2}}$)', fontsize=font_size)
     ax.set_xticks(x + 1.5*width, day_list, fontsize=font_size)
-    ax.legend(loc='upper right', handles=[rects_h, rects_b, rects_u] , labels=["honey bee", "bumblebee", "unknown insect"])
+    ax.legend(
+            loc='upper right', 
+            handles=[rects_h, rects_b, rects_u], 
+            labels=["honeybee", "bumblebee", "unidentified insect"], 
+            title="Insect taxon")
     if IS_AVE:
         ax.set_ylim(0, 1800)
     else:
         ax.set_ylim(0, 600)
 
 
-    plt.savefig(f"day_plots_cls_round{round0.round_num}.png")
+    plt.savefig(f"day_plots_cls_round{round0.round_num}_no_title.png")
     plt.close()
 
 
@@ -719,7 +741,8 @@ def stats_per_round(rounds_dict):
         print(f"{round_id} & {total_honey[i]} & {total_bumble[i]} & {total_unknown[i]} & {total_bees[i]} \\\\")
 
 if __name__ == "__main__":
-    is_rounds_style= True
+    # is_rounds_style= True
+    is_rounds_style= False
 
     IS_AVE = True  # i know this sucks but okay
     # IS_AVE = False
@@ -767,7 +790,6 @@ if __name__ == "__main__":
             fov_area(rounds_dict[round_key])
             stats_per_plot_per_class_cum(rounds_dict[round_key])  # stats of days per plot, stacked bar
         print_stats_per_day_by_plots_class(rounds_dict["5"])
-
     else:
         stats_per_round(rounds_dict)
 
