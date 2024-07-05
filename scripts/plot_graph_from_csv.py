@@ -95,7 +95,7 @@ def plot_by_treatment(csv_fp):
     plt.rcParams.update({'font.size': font_size})
     ax.tick_params(labelsize=font_size)
     ax.set_ylabel('No. of individuals ($\mathregular{h^{-1}m^{-2}}$)', fontsize=font_size)
-    ax.set_title('Number of individuals ($\mathregular{h^{-1}m^{-2}}$) per treatment\n by evaluation method')
+    # ax.set_title('Number of individuals ($\mathregular{h^{-1}m^{-2}}$) per treatment\n by evaluation method')
     ax.set_xticks(x + width/2, [x for x in dates_list], fontsize=font_size)
     ax.legend(loc='upper right')
     ax.set_ylim(0, 1800)

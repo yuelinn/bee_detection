@@ -52,8 +52,8 @@ def convert_labels(qced_labels_dir, output_training_dir):
                         new_label_f.write(new_line)
 
 def main():
-    qced_labels_dir = "/media/linn/export10tb/bees/iterative_labelling/round1_ds/qced/round1-qced-day5/labels"
-    output_training_dir = "/media/linn/export10tb/bees/iterative_labelling/round1_ds/qced/round1-qced-day5/labels4training"
+    qced_labels_dir = "/media/linn/export10tb/bees/iterative_labelling/round5_ds/qced/alles_unflattened"
+    output_training_dir = "/media/linn/export10tb/bees/iterative_labelling/round5_ds/qced/alles_flattened"
 
     os.makedirs(output_training_dir, exist_ok=True)
 

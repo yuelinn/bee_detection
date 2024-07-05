@@ -1,8 +1,9 @@
 import os
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageDraw
 import numpy as np
+from tqdm import tqdm
 
-def BB_snipper(label_root_path, export_dest_path):
+def BB_snipper(label_root_path, export_dest_path, vis_bb_path=None):
     """
     Function to generate the snipped bee images
     label_root_path is the path to the directory, that contains the directories with the images and the labels
@@ -25,7 +26,7 @@ def BB_snipper(label_root_path, export_dest_path):
         filenames.remove('.DS_Store')
 
 
-    for j,filename in enumerate(filenames):
+    for filename in tqdm(filenames):
         img = Image.open(path_to_input_images + filename)
         f = open(path_to_label + filename[:-4] + '.txt', "r")
         img = ImageOps.exif_transpose(img)
@@ -64,10 +65,44 @@ def BB_snipper(label_root_path, export_dest_path):
                                        + hcoord[:4] + "_"
                                        + str(m) + "_"
                                        + filename[:-4] + ".jpg")
-        print("Coordinates:", coord)
+        if vis_bb_path is not None:
+            is_drawn = False
+            os.makedirs(vis_bb_path, exist_ok=True)
+            img_draw = ImageDraw.Draw(img) 
+            for m in range(coord.shape[0]):
+                # draw the bb 
+                x_min = w * coord[m, 0] - w * coord[m, 2] / 2
+                x_max = w * coord[m, 0] + w * coord[m, 2] / 2
+                y_min = h * coord[m, 1] - h * coord[m, 3] / 2
+                y_max = h * coord[m, 1] + h * coord[m, 3] / 2
+                rect = [x_min, y_min, x_max, y_max]
+                # TODO make switch case lazy fucker
+                if coord[m,4] == 0:
+                    clr_str = "blue"
+                if coord[m,4] == 1:
+                    clr_str = "red"
+                if coord[m,4] == 2:
+                    clr_str = "yellow"
+                img_draw.rectangle(rect, outline=clr_str, width=3)
+                is_drawn = True
+ 
+            if is_drawn:
+                img.save(os.path.join(vis_bb_path, filename))
+
+        # print("Coordinates:", coord)
 
 
 if __name__ == '__main__':
+    """
     tag = "2022_action_cam_day1"
-    # tag = "2021_smartphone"
-    BB_snipper(f"/media/linn/export10tb/bees/dataset_final/datasets_by_days/{tag}/train/",f"/media/linn/export10tb/bees/dataset_final/datasets_by_days/{tag}/train/bee_snippets")
+    BB_snipper(f"/media/linn/export10tb/bees/dataset_final/datasets_by_days/{tag}/train/",
+               f"/media/linn/export10tb/bees/dataset_final/datasets_by_days/{tag}/train/bee_snippets",
+               f"/media/linn/export10tb/bees/dataset_final/datasets_by_days/{tag}/train/drawn_bb",
+               )
+    """
+    # parent_dir = "/mnt/bee_cube/dataset_final/2021_2022_all_dataset_auged"
+    parent_dir = "/mnt/bee_cube/dataset_final/actioncam_5days"
+    BB_snipper(f"{parent_dir}/train/",
+               f"{parent_dir}/train/bee_snippets",
+     #          f"{parent_dir}/train/drawn_bb",
+               )

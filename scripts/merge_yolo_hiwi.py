@@ -214,11 +214,19 @@ def main(hiwi_labels_dir, round_x_labels_dir, out_dir, imgs_dir, min_iou_overlap
 
 
 if __name__ == '__main__':
+    hiwi_labels_dir = "/mnt/mon13/bees/full_ds_after_r4/test/labels"
+    round_x_labels_dirs = ["/mnt/mon13/bees/runs/detect/round5/labels"]
+    out_dir = "/mnt/mon13/bees/hiwiNr1-5_unchecked/labels"
+    imgs_dir = "/media/linn/export10tb/bees/dataset_old/cp_datasets/alles/images"
+    min_iou_overlap = 0.7
+
+    """
     hiwi_labels_dir = "/media/linn/export10tb/bees/dataset_old/cp_datasets/alles/labels"
     round_x_labels_dirs = ["/mnt/mon13/bees/runs/detect/round1/labels"]
     out_dir = "/mnt/mon13/bees/hiwiNr1_unchecked/labels"
     imgs_dir = "/media/linn/export10tb/bees/dataset_old/cp_datasets/alles/images"
     min_iou_overlap = 0.7
+    """
 
     main(hiwi_labels_dir, round_x_labels_dirs, out_dir, imgs_dir, min_iou_overlap)
 

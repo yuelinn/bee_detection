@@ -153,12 +153,20 @@ class OneDay():
 
 class OneRound():
     day_tags_dict = {}
+
+    day_tags_dict["220710"] = [0.6926,0.7105,0.8616,0.8419]  # PM75  & F  & P  & FM
+    day_tags_dict["220717"] = [0.5110,0.9221,0.7286,0.6926]
+    day_tags_dict["220719"] = [0.7654,0.6749,0.6403,0.7105]
+    day_tags_dict["220720"] = [0.9221,0.9017,0.9427,0.7842]
+    day_tags_dict["220721"] = [0.9221,1.1384,0.9635,0.8032]
+
+    """Old camera constant
     day_tags_dict["220710"] = [0.68, 0.70, 0.85, 0.83]  # PM75  & F  & P  & FM
     day_tags_dict["220717"] = [0.50, 0.91, 0.72, 0.68] 
     day_tags_dict["220719"] = [0.75, 0.66, 0.63, 0.70]
     day_tags_dict["220720"] = [0.91, 0.89, 0.93, 0.77]
     day_tags_dict["220721"] = [0.91, 1.12, 0.95, 0.79]
-    day_tags_dict["2021"] = None
+    """
 
     """
     day_tags_dict["220710"] = [1.0, 1.0, 1.0, 1.0]  # PM75  & F  & P  & FM
@@ -167,6 +175,8 @@ class OneRound():
     day_tags_dict["220720"] = [1.0, 1.0, 1.0, 1.0]
     day_tags_dict["220721"] = [1.0, 1.0, 1.0, 1.0]
     """
+
+    day_tags_dict["2021"] = None
 
     def __init__(self, round_num, labels_dir):
         self.round_num = round_num

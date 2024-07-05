@@ -39,7 +39,8 @@ def flip_labels(path_to_labels, path_to_destination):
 
 
 if __name__ == '__main__':
-    parent_dirs = "/media/linn/export10tb/bees/exp_2022/220710/*"
+    parent_dirs = "/media/linn/export10tb/bees/dataset_old/cp_datasets/2021_smartphone/"
+    # parent_dirs = "/media/linn/export10tb/bees/exp_2022/220710/*"
 
     for plot_dir in glob.glob(parent_dirs):
         path_to_destination = os.path.join(plot_dir, "labels_flipped")
