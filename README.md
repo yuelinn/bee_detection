@@ -73,13 +73,16 @@ python val.py --data <config for test dataset yaml> --weights <weights to evalua
 
 ## Generating labels for manual annotation from prediction
 ```bash
-
+cd scripts;
+python merge_yolo_hiwi.py \
+--hiwi_labels_dir <dir of labels from previous iteration> \
+--round_labels_dir <dir of predictions from current round> \
+--out_dir <path to output dir> \
+--imgs_dir <path to img dir> 
 ```
-
 
 ## Generating plots from the annotations
 Generate graphs and table with the python script `python scripts/plot_graphs.py --parent_dir <path to where you unziped the labels>`
-For getting the number of bees from a specific set of labels, run script to count bees `python count_bees.py --labels_dir <path to the labels dir>`.
 
 # Visualisation
 You can visualise the bounding boxes from the annotations or the predictions
