@@ -82,7 +82,7 @@ python merge_yolo_hiwi.py \
 ```
 
 ## Generating plots from the annotations
-Generate graphs and table with the python script `python scripts/plot_graphs.py --parent_dir <path to where you unziped the labels>`
+Generate graphs and table with the python script `cd scripts; python plot_graphs.py --parent_dir <path to where you unziped the labels>`
 
 # Visualisation
 You can visualise the bounding boxes from the annotations or the predictions
