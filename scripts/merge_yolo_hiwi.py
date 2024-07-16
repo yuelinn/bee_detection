@@ -140,7 +140,13 @@ class yolo_obj:
         string = f"{self.class_id} {self.center_px_x/self.img_w:.6f} {self.center_px_y/self.img_h:.6f} {self.bb_w/self.img_w:.6f} {self.bb_h/self.img_h:.6f}\n"
         return string
 
-def main(hiwi_labels_dir, round_x_labels_dir, out_dir, imgs_dir, min_iou_overlap):
+@click.command()
+@click.option("--hiwi_labels_dir", prompt="dir of labels from previous iteration")
+@click.option("--round_labels_dir", prompt="dir of predictions from current round")
+@click.option("--out_dir")
+@click.option("--imgs_dir", prompt="filepath of dir with images")
+@click.option("--min_iou_overlap", default=0.7)
+def main(hiwi_labels_dir, round_labels_dir, out_dir, imgs_dir, min_iou_overlap):
     os.makedirs(out_dir, exist_ok=True)
 
     """
@@ -152,7 +158,9 @@ def main(hiwi_labels_dir, round_x_labels_dir, out_dir, imgs_dir, min_iou_overlap
     """
 
     # for each round
-    for round_i, round_labels_dir in enumerate(round_x_labels_dirs):
+    # for round_i, round_labels_dir in enumerate(round_x_labels_dirs)
+    round_i = 0
+    if True:  # turned off rounds 
         print(f"Starting round {round_i} from dir {round_labels_dir}...")
         round_id_mapper = id_mapper(round_i + 1)
 
@@ -214,19 +222,5 @@ def main(hiwi_labels_dir, round_x_labels_dir, out_dir, imgs_dir, min_iou_overlap
 
 
 if __name__ == '__main__':
-    hiwi_labels_dir = "/mnt/mon13/bees/full_ds_after_r4/test/labels"
-    round_x_labels_dirs = ["/mnt/mon13/bees/runs/detect/round5/labels"]
-    out_dir = "/mnt/mon13/bees/hiwiNr1-5_unchecked/labels"
-    imgs_dir = "/media/linn/export10tb/bees/dataset_old/cp_datasets/alles/images"
-    min_iou_overlap = 0.7
-
-    """
-    hiwi_labels_dir = "/media/linn/export10tb/bees/dataset_old/cp_datasets/alles/labels"
-    round_x_labels_dirs = ["/mnt/mon13/bees/runs/detect/round1/labels"]
-    out_dir = "/mnt/mon13/bees/hiwiNr1_unchecked/labels"
-    imgs_dir = "/media/linn/export10tb/bees/dataset_old/cp_datasets/alles/images"
-    min_iou_overlap = 0.7
-    """
-
-    main(hiwi_labels_dir, round_x_labels_dirs, out_dir, imgs_dir, min_iou_overlap)
+    main()
 
