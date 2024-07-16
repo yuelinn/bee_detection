@@ -10,6 +10,7 @@ from matplotlib import pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 import numpy as np
 import copy
+import click
 
 
 class Bees():
@@ -112,9 +113,10 @@ class OneDay():
     # plot_tags_list = ["PM75", "F", "P", "FM"]
     plot_tags_list = ["PM", "WF", "PH", "WM"]
     # plot_tags_list = ["PM", "PH", "WM", "WF"]
-    def __init__(self, day_tag, labels_dir, is_no_plots=False, plots_areas=None):
+    def __init__(self, day_tag, labels_dir, blacklist, is_no_plots=False, plots_areas=None):
         self.tag = day_tag
         self.bees = Bees_unflattened()
+        self.blacklist = blacklist
 
         self.paths = None
         self.set_paths(labels_dir)
@@ -132,7 +134,7 @@ class OneDay():
         self.paths = glob.glob(os.path.join(labels_dir, self.tag+"*"))
 
         # remove blacklist files
-        for black_fn in BLACKLIST:
+        for black_fn in self.blacklist:
             try:
                 self.paths.remove(os.path.join(labels_dir, black_fn))
             except:
@@ -160,27 +162,12 @@ class OneRound():
     day_tags_dict["220720"] = [0.9221,0.9017,0.9427,0.7842]
     day_tags_dict["220721"] = [0.9221,1.1384,0.9635,0.8032]
 
-    """Old camera constant
-    day_tags_dict["220710"] = [0.68, 0.70, 0.85, 0.83]  # PM75  & F  & P  & FM
-    day_tags_dict["220717"] = [0.50, 0.91, 0.72, 0.68] 
-    day_tags_dict["220719"] = [0.75, 0.66, 0.63, 0.70]
-    day_tags_dict["220720"] = [0.91, 0.89, 0.93, 0.77]
-    day_tags_dict["220721"] = [0.91, 1.12, 0.95, 0.79]
-    """
-
-    """
-    day_tags_dict["220710"] = [1.0, 1.0, 1.0, 1.0]  # PM75  & F  & P  & FM
-    day_tags_dict["220717"] = [1.0, 1.0, 1.0, 1.0]
-    day_tags_dict["220719"] = [1.0, 1.0, 1.0, 1.0]
-    day_tags_dict["220720"] = [1.0, 1.0, 1.0, 1.0]
-    day_tags_dict["220721"] = [1.0, 1.0, 1.0, 1.0]
-    """
-
     day_tags_dict["2021"] = None
 
-    def __init__(self, round_num, labels_dir):
+    def __init__(self, round_num, labels_dir, blacklist):
         self.round_num = round_num
         self.labels_dir = labels_dir
+        self.blacklist = blacklist
 
         self.days_list = []
         self.populate_days()
@@ -189,9 +176,9 @@ class OneRound():
         for day_tag in OneRound.day_tags_dict:
             if day_tag == "2021":
                 # handle smartphone as a single plot 
-                self.days_list.append(OneDay(day_tag, self.labels_dir, is_no_plots=True))
+                self.days_list.append(OneDay(day_tag, self.labels_dir, self.blacklist, is_no_plots=True))
             else:
-                self.days_list.append(OneDay(day_tag, self.labels_dir, plots_areas=OneRound.day_tags_dict[day_tag]))
+                self.days_list.append(OneDay(day_tag, self.labels_dir, self.blacklist, plots_areas=OneRound.day_tags_dict[day_tag]))
 
     def get_total_bees(self):
         bees = Bees_unflattened()
@@ -750,40 +737,45 @@ def stats_per_round(rounds_dict):
     for i, round_id in enumerate(x):
         print(f"{round_id} & {total_honey[i]} & {total_bumble[i]} & {total_unknown[i]} & {total_bees[i]} \\\\")
 
-if __name__ == "__main__":
+
+@click.command()
+@click.option('--parent_dir', prompt="parent directory file path")
+def main(parent_dir):
     # is_rounds_style= True
     is_rounds_style= False
 
+    global IS_AVE
     IS_AVE = True  # i know this sucks but okay
     # IS_AVE = False
     
     img_dt = 10  # 10s between images 
+    global HZ_FACTOR
     HZ_FACTOR = img_dt / 3600 
 
+    global AVE_Y_MAX
     AVE_Y_MAX = 4000  # only for ave
 
     blacklist_fp = "blacklist_labels_fn.txt"  
     blacklist_f = open(blacklist_fp, "r")
-    BLACKLIST = [x.strip() for x in blacklist_f.readlines()] # what, another global variable??!!
+    blacklist = [x.strip() for x in blacklist_f.readlines()] # what, another global variable??!!
 
     if is_rounds_style:
-        BLACKLIST = []
+        blacklist= []
         IS_AVE=False
-
 
     rounds_dict = {}
 
-    rounds_dict["0"] = OneRound(0, "/media/linn/export10tb/bees/dataset_old/cp_datasets/alles/labels")
-    rounds_dict["0.5"] = OneRound(0.5, "/mnt/mon13/bees/runs/detect/round1/labels")
-    rounds_dict["1"] = OneRound(1, "/media/linn/export10tb/bees/iterative_labelling/round1_ds/qced/alles_unflattened/labels")
-    rounds_dict["1.5"] = OneRound(1.5, "/mnt/mon13/bees/hiwiNr1Nr2_unchecked/labels/labels")
-    rounds_dict["2"] = OneRound(2, "/media/linn/export10tb/bees/iterative_labelling/round2_ds/qced/alles_unflattened/labels")
-    rounds_dict["2.5"] = OneRound(2.5, "/mnt/mon13/bees/hiwiNr1Nr2r3_unchecked/labels")
-    rounds_dict["3"] = OneRound(3, "/media/linn/export10tb/bees/iterative_labelling/round3_ds/qced/alles_unflattened/labels")
-    rounds_dict["3.5"] = OneRound(3.5, "/mnt/mon13/bees/hiwiNr1-4_unchecked/labels")
-    rounds_dict["4"] = OneRound(4, "/media/linn/export10tb/bees/iterative_labelling/round4_ds/qced/alles_unflattened/labels")
-    rounds_dict["4.5"] = OneRound(4.5, "/mnt/mon13/bees/hiwiNr1-5_unchecked/labels")
-    rounds_dict["5"] = OneRound(5, "/media/linn/export10tb/bees/iterative_labelling/round5_ds/qced/alles_unflattened/labels")
+    rounds_dict["0"] = OneRound(0,    os.path.join(parent_dir, "iteration_0", "labels")   , blacklist) 
+    rounds_dict["0.5"] = OneRound(0.5,os.path.join(parent_dir, "iteration_0_5", "labels") , blacklist)
+    rounds_dict["1"] = OneRound(1,    os.path.join(parent_dir, "iteration_1", "labels") , blacklist)
+    rounds_dict["1.5"] = OneRound(1.5,os.path.join(parent_dir, "iteration_1_5", "labels"), blacklist)
+    rounds_dict["2"] = OneRound(2,    os.path.join(parent_dir, "iteration_2", "labels") , blacklist)
+    rounds_dict["2.5"] = OneRound(2.5, os.path.join(parent_dir, "iteration_2_5", "labels"), blacklist)
+    rounds_dict["3"] = OneRound(3,    os.path.join(parent_dir, "iteration_3", "labels") , blacklist)
+    rounds_dict["3.5"] = OneRound(3.5, os.path.join(parent_dir, "iteration_3_5", "labels"), blacklist)
+    rounds_dict["4"] = OneRound(4,    os.path.join(parent_dir, "iteration_4", "labels") , blacklist)
+    rounds_dict["4.5"] = OneRound(4.5, os.path.join(parent_dir, "iteration_4_5", "labels"), blacklist)
+    rounds_dict["5"] = OneRound(5,    os.path.join(parent_dir, "iteration_5", "labels") , blacklist)
 
     if not is_rounds_style:
         for round_key in rounds_dict:
@@ -803,3 +795,5 @@ if __name__ == "__main__":
     else:
         stats_per_round(rounds_dict)
 
+if __name__ == "__main__":
+    main()
