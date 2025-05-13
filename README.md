@@ -1,4 +1,4 @@
-# Pollinator monitoring in flower-enriched maize using an iterative AI-assisted annotation pipeline and visual surveys
+#  AI-assisted Annotation for Bee Counting under Real Field Conditions
 
 This is the official code repo for our paper entitled "Pollinator monitoring in flower-enriched maize using an iterative AI-assisted annotation pipeline and visual surveys" which is currently under review.
 
